@@ -1,0 +1,10 @@
+{
+  "name": "reviderm-backend-starter",
+  "version": "1.0.0",
+  "type": "module",
+  "private": true,
+  "dependencies": {
+    "@neondatabase/serverless": "^0.9.5",
+    "csv-parse": "^5.5.6"
+  }
+}
