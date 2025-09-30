@@ -146,249 +146,310 @@
   <footer>Reviderm · MVP v7.4.1 (fix &lt;b&gt;und.&lt;/b&gt; en recompensas) · offline</footer>
 
   <script>
-    const PRODUCTS = [{"id": "50041-0", "sku": "50041.0", "name": "REVIDERM gentle cleansing milk 200ml", "price": 180.0, "category": "Essential", "subcategory": "Limpieza"}, {"id": "70001-0", "sku": "70001.0", "name": "REVIDERM pore refining foam 200ml", "price": 260.0, "category": "Essential", "subcategory": "Limpieza"}, {"id": "80027-0", "sku": "80027.0", "name": "REVIDERM thermal tonic 200ml", "price": 170.0, "category": "Essential", "subcategory": "Limpieza"}, {"id": "50052-0", "sku": "50052.0", "name": "REVIDERM 2 clean eye 125ml", "price": 120.0, "category": "Essential", "subcategory": "Limpieza"}, {"id": "80049-0", "sku": "80049.0", "name": "REVIDERM purifying gel 200ml", "price": 180.0, "category": "Essential", "subcategory": "Limpieza"}, {"id": "80053-0", "sku": "80053.0", "name": "REVIDERM purifying tonic 200ml", "price": 170.0, "category": "Essential", "subcategory": "Limpieza"}, {"id": "80012-0", "sku": "80012.0", "name": "REVIDERM enzyme peeling liquid 50ml", "price": 190.0, "category": "Essential", "subcategory": "Limpieza"}, {"id": "80021-0", "sku": "80021.0", "name": "REVIDERM enzyme peeling paste 50ml", "price": 250.0, "category": "Essential", "subcategory": "Limpieza"}, {"id": "50057-0", "sku": "50057.0", "name": "REVIDERM refresh eye gel 15ml", "price": 220.0, "category": "Essential", "subcategory": "Contorno de ojos"}, {"id": "80620-0", "sku": "80620.0", "name": "REVIDERM collagen eye pads sensitive 1cjx5und", "price": 250.0, "category": "Essential", "subcategory": "Contorno de ojos"}, {"id": "80058-0", "sku": "80058.0", "name": "REVIDERM eye & lip improve 30ml", "price": 320.0, "category": "Essential", "subcategory": "Contorno de ojos"}, {"id": "80032-0", "sku": "80032.0", "name": "REVIDERM eye C perfection 15ml", "price": 320.0, "category": "Essential", "subcategory": "Contorno de ojos"}, {"id": "80100-0", "sku": "80100.0", "name": "REVIDERM body firming gel 200ml", "price": 400.0, "category": "Essential", "subcategory": "Corporal"}, {"id": "80109-0", "sku": "80109.0", "name": "REVIDERM body styler slimming fluid 200ml", "price": 350.0, "category": "Essential", "subcategory": "Corporal"}, {"id": "50029-0", "sku": "50029.0", "name": "REVIDERM body stretch mark cream 200ml", "price": 320.0, "category": "Essential", "subcategory": "Corporal"}, {"id": "50030-0", "sku": "50030.0", "name": "REVIDERM body smoothing double peel 200ml", "price": 250.0, "category": "Essential", "subcategory": "Corporal"}, {"id": "80115-0", "sku": "80115.0", "name": "REVIDERM OPC hand impressions 100ml", "price": 140.0, "category": "Essential", "subcategory": "Corporal"}, {"id": "80113-0", "sku": "80113.0", "name": "REVIDERM sun & care stick FPS30 10gr", "price": 130.0, "category": "Essential", "subcategory": "Solar"}, {"id": "80078-0", "sku": "80078.0", "name": "REVIDERM sun protect FPS50 50ml", "price": 240.0, "category": "Essential", "subcategory": "Solar"}, {"id": "80071-0", "sku": "80071.0", "name": "REVIDERM after solar repair 120ml", "price": 220.0, "category": "Essential", "subcategory": "Solar"}, {"id": "80112-0", "sku": "80112.0", "name": "REVIDERM sunless tanning gel 30ml", "price": 140.0, "category": "Essential", "subcategory": "Solar"}, {"id": "80866-0", "sku": "80866.0", "name": "REVIDERM B3 brightening ampoule 5cjx3und", "price": 400.0, "category": "Essential", "subcategory": "Ampollas"}, {"id": "80867-0", "sku": "80867.0", "name": "REVIDERM C revitalizing ampoule 5cjx3und", "price": 600.0, "category": "Essential", "subcategory": "Ampollas"}, {"id": "80869-0", "sku": "80869.0", "name": "REVIDERM HYAL plumping ampoule 5cjx3und", "price": 400.0, "category": "Essential", "subcategory": "Ampollas"}, {"id": "80872-0", "sku": "80872.0", "name": "REVIDERM COLLAGEN boosting ampoule 5cjx3und", "price": 500.0, "category": "Essential", "subcategory": "Ampollas"}, {"id": "80066-0", "sku": "80066.0", "name": "REVIDERM spotEX concentrate 10ml", "price": 190.0, "category": "Indication", "subcategory": "Pigmentación"}, {"id": "50058-0", "sku": "50058.0", "name": "REVIDERM hydro2 infusion serum 30ml", "price": 220.0, "category": "Indication", "subcategory": "Hidratación"}, {"id": "50048-0", "sku": "50048.0", "name": "REVIDERM hydro2 infusion mask 50ml", "price": 200.0, "category": "Indication", "subcategory": "Hidratación"}, {"id": "50039-0", "sku": "50039.0", "name": "REVIDERM purity roll on 10ml", "price": 110.0, "category": "Indication", "subcategory": "Acné"}, {"id": "50069-0", "sku": "50069.0", "name": "REVIDERM purity roll on forte 10ml", "price": 130.0, "category": "Indication", "subcategory": "Acné"}, {"id": "50010-0", "sku": "50010.0", "name": "REVIDERM AHA fluid 50ml", "price": 240.0, "category": "Indication", "subcategory": "Acné"}, {"id": "50011-0", "sku": "50011.0", "name": "REVIDERM sicca calcium serum 30ml", "price": 220.0, "category": "Indication", "subcategory": "Acné"}, {"id": "50036-0", "sku": "50036.0", "name": "REVIDERM sicca control night 50ml", "price": 250.0, "category": "Indication", "subcategory": "Acné"}, {"id": "50056-0", "sku": "50056.0", "name": "REVIDERM oleosa control serum 30ml", "price": 180.0, "category": "Indication", "subcategory": "Acné"}, {"id": "50055-0", "sku": "50055.0", "name": "REVIDERM oleosa control fluid 50ml", "price": 220.0, "category": "Indication", "subcategory": "Acné"}, {"id": "50003-0", "sku": "50003.0", "name": "REVIDERM skin refiner fluid 50ml", "price": 200.0, "category": "Indication", "subcategory": "Acné"}, {"id": "50038-0", "sku": "50038.0", "name": "REVIDERM silver detoxifying mask 50ml", "price": 120.0, "category": "Indication", "subcategory": "Acné"}, {"id": "50053-0", "sku": "50053.0", "name": "REVIDERM couperose therapy fluid 50ml", "price": 280.0, "category": "Indication", "subcategory": "Rosácea"}, {"id": "50046-0", "sku": "50046.0", "name": "REVIDERM couperose therapy serum-1 30ml", "price": 220.0, "category": "Indication", "subcategory": "Rosácea"}, {"id": "80059-0", "sku": "80059.0", "name": "REVIDERM peptide line lift mask 50ml", "price": 380.0, "category": "Intelligence", "subcategory": "Anti edad"}, {"id": "80082-0", "sku": "80082.0", "name": "REVIDERM skin rejuvenation mask 1cjx5und", "price": 325.0, "category": "Intelligence", "subcategory": "Anti edad"}, {"id": "80084-0", "sku": "80084.0", "name": "REVIDERM pore refining mask 1cjx5und", "price": 325.0, "category": "Intelligence", "subcategory": "Acné"}, {"id": "80038-0", "sku": "80038.0", "name": "REVIDERM calming hydro mask 50ml", "price": 320.0, "category": "Intelligence", "subcategory": "Rosácea"}, {"id": "80025-0", "sku": "80025.0", "name": "REVIDERM OPC cream forte 50ml", "price": 490.0, "category": "Intelligence", "subcategory": "Rosácea"}, {"id": "80022-0", "sku": "80022.0", "name": "REVIDERM OPC fluid forte 30ml", "price": 450.0, "category": "Intelligence", "subcategory": "Rosácea"}, {"id": "80055-0", "sku": "80055.0", "name": "REVIDERM daily double C serum 30ml", "price": 360.0, "category": "Intelligence", "subcategory": "Pigmentación"}, {"id": "80015-0", "sku": "80015.0", "name": "REVIDERM O2 hydro fluid 50ml", "price": 490.0, "category": "Intelligence", "subcategory": "Hidratación"}, {"id": "80091-0", "sku": "80091.0", "name": "REVIDERM hyaluron hydro balance HD 30ml", "price": 420.0, "category": "Intelligence", "subcategory": "Hidratación"}, {"id": "80018-0", "sku": "80018.0", "name": "REVIDERM ECM repair fluid 50ml", "price": 580.0, "category": "Intelligence", "subcategory": "Anti edad"}, {"id": "80014-0", "sku": "80014.0", "name": "REVIDERM ECM repair cream 50ml", "price": 580.0, "category": "Intelligence", "subcategory": "Anti edad"}, {"id": "80094-0", "sku": "80094.0", "name": "REVIDERM ECM repair concentrate HD 30ml", "price": 480.0, "category": "Intelligence", "subcategory": "Anti edad"}, {"id": "80086-0", "sku": "80086.0", "name": "REVIDERM retA cream 50ml", "price": 450.0, "category": "Intelligence", "subcategory": "Anti edad"}, {"id": "80087-0", "sku": "80087.0", "name": "REVIDERM retA+ serum 30ml", "price": 400.0, "category": "Intelligence", "subcategory": "Anti edad"}, {"id": "70010-0", "sku": "70010.0", "name": "REVIDERM pre infuse serum 30ml", "price": 890.0, "category": "Intelligence", "subcategory": "Linea de lujo"}, {"id": "70003-0", "sku": "70003.0", "name": "REVIDERM day contouring 50ml", "price": 890.0, "category": "Intelligence", "subcategory": "Linea de lujo"}, {"id": "70004-0", "sku": "70004.0", "name": "REVIDERM night contouring 50ml", "price": 1090.0, "category": "Intelligence", "subcategory": "Linea de lujo"}, {"id": "70007-0", "sku": "70007.0", "name": "REVIDERM express lifting mask 50ml", "price": 790.0, "category": "Intelligence", "subcategory": "Linea de lujo"}, {"id": "70019-0", "sku": "70019.0", "name": "REVIDERM silhouette contouring 200ml", "price": 790.0, "category": "Intelligence", "subcategory": "Linea de lujo"}];
-    const CATEGORY_TREE = {"Essential": {"Limpieza": ["50041-0", "70001-0", "80027-0", "50052-0", "80049-0", "80053-0", "80012-0", "80021-0"], "Contorno de ojos": ["50057-0", "80620-0", "80058-0", "80032-0"], "Corporal": ["80100-0", "80109-0", "50029-0", "50030-0", "80115-0"], "Solar": ["80113-0", "80078-0", "80071-0", "80112-0"], "Ampollas": ["80866-0", "80867-0", "80869-0", "80872-0"]}, "Indication": {"Pigmentación": ["80066-0"], "Hidratación": ["50058-0", "50048-0"], "Acné": ["50039-0", "50069-0", "50010-0", "50011-0", "50036-0", "50056-0", "50055-0", "50003-0", "50038-0"], "Rosácea": ["50053-0", "50046-0"]}, "Intelligence": {"Anti edad": ["80059-0", "80082-0", "80018-0", "80014-0", "80094-0", "80086-0", "80087-0"], "Acné": ["80084-0"], "Rosácea": ["80038-0", "80025-0", "80022-0"], "Pigmentación": ["80055-0"], "Hidratación": ["80015-0", "80091-0"], "Linea de lujo": ["70010-0", "70003-0", "70004-0", "70007-0", "70019-0"]}};
-    const REGIONS = [{"id": "", "name": "", "locales": [{"id": "-", "name": "", "advisors": [{"id": "-", "name": "", "dni": ""}, {"id": "-", "name": "", "dni": ""}, {"id": "-", "name": "", "dni": ""}, {"id": "-", "name": "", "dni": ""}, {"id": "-", "name": "", "dni": ""}, {"id": "-", "name": "", "dni": ""}, {"id": "-", "name": "", "dni": ""}, {"id": "-", "name": "", "dni": ""}, {"id": "-", "name": "", "dni": ""}, {"id": "-", "name": "", "dni": ""}, {"id": "-", "name": "", "dni": ""}, {"id": "-", "name": "", "dni": ""}, {"id": "-", "name": "", "dni": ""}, {"id": "-", "name": "", "dni": ""}, {"id": "-", "name": "", "dni": ""}, {"id": "-", "name": "", "dni": ""}, {"id": "-", "name": "", "dni": ""}, {"id": "-", "name": "", "dni": ""}, {"id": "-", "name": "", "dni": ""}, {"id": "-", "name": "", "dni": ""}, {"id": "-", "name": "", "dni": ""}, {"id": "-", "name": "", "dni": ""}, {"id": "-", "name": "", "dni": ""}, {"id": "-", "name": "", "dni": ""}, {"id": "-", "name": "", "dni": ""}, {"id": "-", "name": "", "dni": ""}, {"id": "-", "name": "", "dni": ""}, {"id": "-", "name": "", "dni": ""}, {"id": "-", "name": "", "dni": ""}, {"id": "-", "name": "", "dni": ""}, {"id": "-", "name": "", "dni": ""}, {"id": "-", "name": "", "dni": ""}, {"id": "-", "name": "", "dni": ""}, {"id": "-", "name": "", "dni": ""}, {"id": "-", "name": "", "dni": ""}, {"id": "-", "name": "", "dni": ""}, {"id": "-", "name": "", "dni": ""}, {"id": "-", "name": "", "dni": ""}, {"id": "-", "name": "", "dni": ""}, {"id": "-", "name": "", "dni": ""}, {"id": "-", "name": "", "dni": ""}, {"id": "-", "name": "", "dni": ""}, {"id": "-", "name": "", "dni": ""}, {"id": "-", "name": "", "dni": ""}, {"id": "-", "name": "", "dni": ""}, {"id": "-", "name": "", "dni": ""}, {"id": "-", "name": "", "dni": ""}, {"id": "-", "name": "", "dni": ""}, {"id": "-", "name": "", "dni": ""}, {"id": "-", "name": "", "dni": ""}, {"id": "-", "name": "", "dni": ""}, {"id": "-", "name": "", "dni": ""}, {"id": "-", "name": "", "dni": ""}, {"id": "-", "name": "", "dni": ""}, {"id": "-", "name": "", "dni": ""}]}]}, {"id": "dermashop", "name": "Dermashop", "locales": [{"id": "dermashop-jockey-plaza", "name": "Jockey Plaza", "advisors": [{"id": "dermashop-jockey-plaza-martin", "name": "Martin", "dni": "40499447"}]}, {"id": "dermashop-mega-plaza", "name": "Mega Plaza", "advisors": [{"id": "dermashop-mega-plaza-anabel-4", "name": "Anabel 4", "dni": "12345678"}]}, {"id": "dermashop-plaza-norte", "name": "Plaza Norte", "advisors": [{"id": "dermashop-plaza-norte-ra-l", "name": "Raúl", "dni": "43388812"}]}, {"id": "dermashop-plaza-san-miguel", "name": "Plaza San Miguel", "advisors": [{"id": "dermashop-plaza-san-miguel-anabel", "name": "Anabel", "dni": "12345678"}]}, {"id": "dermashop-rambla-brasil", "name": "Rambla Brasil", "advisors": [{"id": "dermashop-rambla-brasil-anabel-6", "name": "Anabel 6", "dni": "12345678"}]}, {"id": "dermashop-rambla-san-borja", "name": "Rambla San Borja", "advisors": [{"id": "dermashop-rambla-san-borja-anabel-5", "name": "Anabel 5", "dni": "12345678"}]}]}, {"id": "lima", "name": "Lima", "locales": [{"id": "lima-centro-121", "name": "Centro 121", "advisors": [{"id": "lima-centro-121-alexandra", "name": "Alexandra", "dni": "12345678"}]}, {"id": "lima-reverse", "name": "Reverse", "advisors": [{"id": "lima-reverse-monica", "name": "Monica", "dni": "12345678"}]}, {"id": "lima-vie-belle", "name": "Vie belle", "advisors": [{"id": "lima-vie-belle-sharon", "name": "Sharon", "dni": "12345678"}]}]}];
-    const GOALS = [{"scope": "adv", "region": "Lima", "local": "Reverse", "advisor": "Monica", "goal": 25.0}, {"scope": "adv", "region": "Lima", "local": "Centro 121", "advisor": "Alexandra", "goal": 25.0}, {"scope": "adv", "region": "Lima", "local": "Vie belle", "advisor": "Sharon", "goal": 25.0}, {"scope": "adv", "region": "Dermashop", "local": "Jockey Plaza", "advisor": "Martin", "goal": 26.0}, {"scope": "adv", "region": "Dermashop", "local": "Plaza Norte", "advisor": "Raúl", "goal": 27.0}, {"scope": "adv", "region": "Dermashop", "local": "Plaza San Miguel", "advisor": "Anabel", "goal": 28.0}, {"scope": "adv", "region": "Dermashop", "local": "Mega Plaza", "advisor": "Anabel 4", "goal": 29.0}, {"scope": "adv", "region": "Dermashop", "local": "Rambla San Borja", "advisor": "Anabel 5", "goal": 30.0}, {"scope": "adv", "region": "Dermashop", "local": "Rambla Brasil", "advisor": "Anabel 6", "goal": 31.0}];
-    const REWARDS = [{"threshold": 5, "label": "30.0", "value": null}, {"threshold": 10, "label": "60.0", "value": null}, {"threshold": 15, "label": "90.0", "value": null}, {"threshold": 20, "label": "190.0", "value": null}, {"threshold": 25, "label": "240.0", "value": null}, {"threshold": 30, "label": "290.0", "value": null}, {"threshold": 35, "label": "400.0", "value": null}, {"threshold": 40, "label": "480.0", "value": null}, {"threshold": 50, "label": "560.0", "value": null}];
+   <script>
+/* === Reviderm PWA v7.5 (frontend conectado a backend) ===
+   Cambios clave:
+   - Login llama a /.netlify/functions/login  → devuelve advisorId
+   - Enviar venta llama a /.netlify/functions/sale
+   - Progreso del mes llama a /.netlify/functions/progress (servidor)
+   Mantiene el historial local como respaldo (offline).
+*/
 
-    let STATE = { user: null, cart: [], history: [] };
+const API = '/.netlify/functions';
 
-    const S = (sel) => document.querySelector(sel);
-    const fmt = (n) => new Intl.NumberFormat("es-PE",{style:"currency",currency:"PEN"}).format(n||0);
-    const monthKey = () => new Date().toISOString().slice(0,7);
-    const onlyDigits = (s) => (s||"").replace(/\D+/g, "");
-    const esc = (s) => (s||"").replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+// Estas constantes ya existen en tu HTML de v7.x.
+// Si tu index.html las trae embebidas, las usamos tal cual:
+const PRODUCTS = typeof PRODUCTS !== 'undefined' ? PRODUCTS : [];
+const CATEGORY_TREE = typeof CATEGORY_TREE !== 'undefined' ? CATEGORY_TREE : {};
+const REGIONS = typeof REGIONS !== 'undefined' ? REGIONS : [];
 
-    function weightForCategory(cat){
-      const c = (cat||'').toLowerCase();
-      return c.includes('intelligence') ? 2 : 1;
+let STATE = { user: null, cart: [], history: [] };
+
+// Utilidades
+const S = sel => document.querySelector(sel);
+const fmt = n => new Intl.NumberFormat("es-PE",{ style:"currency", currency:"PEN" }).format(n||0);
+const monthKey = () => new Date().toISOString().slice(0,7);
+const onlyDigits = s => (s||"").replace(/\D+/g, "");
+const esc = s => (s||"").replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const weightForCategory = (cat="") => /intelligence/i.test(cat) ? 2 : 1;
+
+// ------------------ LOGIN ------------------
+function initLogin(){
+  // Poblar selects de Región/Local/Asesora
+  const selRegion = S("#login-region");
+  const selLocal  = S("#login-local");
+  const selAdv    = S("#login-advisor");
+
+  selRegion.innerHTML = '<option value="">Selecciona...</option>' + REGIONS.map(r => `<option value="${r.id}">${r.name}</option>`).join("");
+  selLocal.disabled = true; selAdv.disabled = true;
+
+  selRegion.onchange = () => {
+    const r = REGIONS.find(x=> x.id===selRegion.value);
+    if(!r){ selLocal.disabled = true; selAdv.disabled = true; return; }
+    selLocal.disabled = false;
+    selLocal.innerHTML = '<option value="">Selecciona...</option>' + r.locales.map(l => `<option value="${l.id}">${l.name}</option>`).join("");
+    selAdv.disabled = true; selAdv.innerHTML = '<option value="">Selecciona...</option>';
+  };
+  selLocal.onchange = () => {
+    const r = REGIONS.find(x=> x.id===selRegion.value);
+    const l = r ? r.locales.find(x=> x.id===selLocal.value) : null;
+    if(!l){ selAdv.disabled = true; return; }
+    selAdv.disabled = false;
+    selAdv.innerHTML = '<option value="">Selecciona...</option>' + l.advisors.map(a => `<option value="${a.id}">${a.name}</option>`).join("");
+  };
+
+  S("#btn-login").onclick = async () => {
+    const rId = S("#login-region").value;
+    const lId = S("#login-local").value;
+    const aId = S("#login-advisor").value;
+    const dni = onlyDigits(S("#login-dni").value);
+
+    if(!rId || !lId || !aId) { alert("Selecciona región, local y asesora"); return; }
+    if(!dni) { alert("Ingresa tu DNI (solo dígitos)"); return; }
+
+    const r = REGIONS.find(x=>x.id===rId);
+    const l = r.locales.find(x=>x.id===lId);
+    const a = l.advisors.find(x=>x.id===aId);
+
+    // Login en servidor (valida DNI contra Neon)
+    let resp;
+    try{
+      resp = await fetch(`${API}/login`, {
+        method:'POST',
+        headers:{'content-type':'application/json'},
+        body: JSON.stringify({ region: r.name, local: l.name, advisor: a.name, dni })
+      }).then(x=>x.json());
+    }catch(e){
+      alert("No se pudo conectar con el servidor. Revisa tu conexión.");
+      return;
     }
+    if(!resp || !resp.ok){ alert("DNI o datos incorrectos"); return; }
 
-    function historyWeightedUnits(){
-      let total = 0;
-      for(const sale of STATE.history){
-        for(const it of sale.items){
-          const p = PRODUCTS.find(x=> x.id===it.productId);
-          const w = weightForCategory(p && p.category);
-          total += (it.qty||0) * w;
-        }
+    STATE.user = {
+      regionId:r.id, regionName:r.name,
+      localId:l.id,  localName:l.name,
+      advisorId: resp.advisorId, advisorName: a.name,
+      dni
+    };
+    localStorage.setItem("reviderm_user", JSON.stringify(STATE.user));
+    enterApp();
+  };
+}
+
+function enterApp(){
+  S("#screen-login").classList.add("hidden");
+  S("#screen-app").classList.remove("hidden");
+  S("#btn-logout").classList.remove("hidden");
+  S("#store-badge").textContent = `${STATE.user.regionName} · ${STATE.user.localName} · ${STATE.user.advisorName}`;
+
+  // Cargar historial local (respaldo offline)
+  const histKey = "reviderm_history_"+(STATE.user.dni||STATE.user.advisorId)+"_"+monthKey();
+  try{ STATE.history = JSON.parse(localStorage.getItem(histKey)) || []; } catch{ STATE.history = []; }
+
+  renderAll();
+}
+function logout(){ STATE.user=null; localStorage.removeItem("reviderm_user"); location.reload(); }
+
+// ------------------ CATEGORÍAS/PRODUCTOS ------------------
+let CURRENT_CAT = null, CURRENT_SUBCAT = null;
+
+function renderCategories(){
+  const cats = Object.keys(CATEGORY_TREE).sort();
+  const cont = S("#cat-buttons");
+  cont.innerHTML = cats.map(c => `<button class="btn tab ${c===CURRENT_CAT?'active':''}" onclick="selectCat('${c.replace(/'/g,"\\'")}')">${c}</button>`).join("");
+  if(!CURRENT_CAT && cats.length) CURRENT_CAT = cats[0];
+  renderSubcategories();
+}
+function selectCat(cat){ CURRENT_CAT = cat; CURRENT_SUBCAT = null; renderCategories(); }
+function renderSubcategories(){
+  const subs = Object.keys(CATEGORY_TREE[CURRENT_CAT] || {}).sort();
+  const cont = S("#subcat-buttons");
+  cont.innerHTML = subs.map(s => `<button class="btn tab ${s===CURRENT_SUBCAT?'active':''}" onclick="selectSubcat('${s.replace(/'/g,"\\'")}')">${s}</button>`).join("");
+  if(!CURRENT_SUBCAT && subs.length) CURRENT_SUBCAT = subs[0];
+  renderProductButtons();
+}
+function selectSubcat(sub){ CURRENT_SUBCAT = sub; renderSubcategories(); }
+
+function renderProductButtons(){
+  const q = (S("#search").value||"").toLowerCase().trim();
+  let prods = [];
+  if(q){
+    prods = PRODUCTS.filter(p => (p.name+" "+(p.sku||"")).toLowerCase().includes(q));
+  } else {
+    const ids = (CATEGORY_TREE[CURRENT_CAT]||{})[CURRENT_SUBCAT] || [];
+    prods = PRODUCTS.filter(p => ids.includes(p.id));
+  }
+  const cont = S("#product-buttons");
+  if(prods.length===0){ cont.innerHTML = '<div class="small">Sin resultados.</div>'; return; }
+  cont.innerHTML = prods.map(p => {
+    const price = (p.price!=null? fmt(p.price): "S/ —");
+    return `
+      <div class="card" style="padding:10px;min-width:220px;flex:1">
+        <div style="font-weight:700">${p.name}</div>
+        <div class="small">SKU ${p.sku||"-"}</div>
+        <div class="pill" style="margin-top:6px;display:inline-block">${price}</div>
+        <div class="row" style="margin-top:8px;gap:6px;align-items:center">
+          <button class="btn small tab" onclick="decQty('${p.id}')">−</button>
+          <span id="qty-${p.id}" class="pill">0</span>
+          <button class="btn small tab" onclick="incQty('${p.id}')">+</button>
+          <button class="btn small add" style="margin-left:8px" onclick="addQtyToCart('${p.id}')">Añadir</button>
+        </div>
+      </div>`;
+  }).join("");
+}
+const qtyBuffer = new Map();
+function incQty(pid){ qtyBuffer.set(pid, (qtyBuffer.get(pid)||0)+1); S('#qty-'+pid).textContent = qtyBuffer.get(pid); }
+function decQty(pid){ const v=(qtyBuffer.get(pid)||0)-1; qtyBuffer.set(pid, Math.max(0,v)); S('#qty-'+pid).textContent = qtyBuffer.get(pid); }
+
+// ------------------ CARRITO / ENVÍO ------------------
+function addQtyToCart(pid){
+  const qty = qtyBuffer.get(pid)||0; if(qty<=0) return;
+  const p = PRODUCTS.find(x=> x.id===pid);
+  const idx = STATE.cart.findIndex(l => l.productId === pid);
+  const price = p && p.price ? p.price : 0;
+  if(idx>=0) STATE.cart[idx].qty += qty;
+  else STATE.cart.push({ productId: pid, qty, price });
+  qtyBuffer.set(pid,0); S('#qty-'+pid).textContent = 0;
+  renderCart();
+}
+function removeLine(i){ STATE.cart.splice(i,1); renderCart(); }
+
+async function submitSale(){
+  if(STATE.cart.length===0){ alert("No hay productos en el carrito"); return; }
+  if(!STATE.user?.advisorId){ alert("Vuelve a iniciar sesión"); return; }
+
+  const payload = {
+    advisorId: STATE.user.advisorId,
+    region: STATE.user.regionName,
+    local:  STATE.user.localName,
+    date:   new Date().toISOString().slice(0,10),
+    items:  STATE.cart.map(l => ({ productId: l.productId, qty: l.qty }))
+  };
+
+  // 1) Intentar guardar en la nube (Neon) vía Function
+  let okCloud = false, saleId = null;
+  try{
+    const r = await fetch(`${API}/sale`, {
+      method:'POST',
+      headers:{'content-type':'application/json'},
+      body: JSON.stringify(payload)
+    }).then(x=>x.json());
+    okCloud = !!(r && r.ok);
+    saleId = r?.saleId || null;
+  }catch(e){ okCloud = false; }
+
+  // 2) Mantener histórico local (respaldo offline)
+  const histKey = "reviderm_history_"+(STATE.user.dni||STATE.user.advisorId)+"_"+monthKey();
+  STATE.history.push({
+    id: saleId || crypto.randomUUID(),
+    date: payload.date,
+    items: STATE.cart.map(x => ({...x})),
+    totalUnits: STATE.cart.reduce((a,l)=>a+l.qty,0),
+    totalAmount: STATE.cart.reduce((a,l)=>a+l.qty*(l.price||0),0)
+  });
+  localStorage.setItem(histKey, JSON.stringify(STATE.history));
+  STATE.cart = [];
+  renderAll();
+
+  alert(okCloud ? "Venta registrada (nube + local)" : "Venta registrada localmente (sin conexión). Se intentará sincronizar luego.");
+}
+
+function renderCart(){
+  S("#cart-count").textContent = STATE.cart.length + " ítems";
+  const list = S("#cart-list");
+  if(STATE.cart.length===0){ list.innerHTML = '<div class="small">Añade productos para registrar la venta de hoy.</div>'; S("#cart-total").textContent = fmt(0); return; }
+  list.innerHTML = STATE.cart.map((l,i)=>{
+    const p = PRODUCTS.find(x=>x.id===l.productId);
+    return `
+      <div class="row card" style="padding:8px;align-items:center;justify-content:space-between">
+        <div>
+          <div style="font-weight:600)">${p?p.name:"?"}</div>
+          <div class="small">SKU ${p?p.sku:""} · ${l.qty} <b>und.</b> · ${l.price?fmt(l.price):"S/ —"}</div>
+        </div>
+        <button class="btn small remove" onclick="removeLine(${i})">Quitar</button>
+      </div>`;
+  }).join("");
+  const total = STATE.cart.reduce((a,l)=>a+l.qty*(l.price||0),0);
+  S("#cart-total").textContent = fmt(total);
+}
+
+function renderHistory(){
+  const cont = S("#history");
+  if(STATE.history.length===0){ cont.innerHTML = ""; return; }
+  cont.innerHTML = '<div class="title" style="font-size:16px">Historial reciente</div>' +
+    STATE.history.slice().reverse().slice(0,5).map(h=>{
+      return `
+        <div class="row card" style="padding:8px;align-items:center;justify-content:space-between">
+          <div>
+            <div style="font-weight:600)">${h.date}</div>
+            <div class="small">${h.items.length} líneas · ${h.totalUnits} <b>und.</b> · ${fmt(h.totalAmount)}</div>
+          </div>
+          <div class="pill" style="background:#ecfdf5;border-color:#bbf7d0;color:#065f46">✓ registrado</div>
+        </div>`;
+    }).join("");
+}
+
+// ------------------ PROGRESO (ahora desde el SERVIDOR) ------------------
+async function renderProgress(){
+  const goalLbl = S("#goal-label");
+  const bar = S("#progress-bar");
+  const ptxt = S("#progress-text");
+  const rewardsList = S("#rewards-list");
+  const nextLbl = S("#rewards-next");
+
+  const month = monthKey();
+  let units = 0, goal = 0, rewards = [];
+
+  if(STATE.user?.advisorId){
+    try{
+      const q = new URLSearchParams({ advisorId: STATE.user.advisorId, month }).toString();
+      const r = await fetch(`${API}/progress?${q}`).then(x=>x.json());
+      if(r && r.ok){
+        units = Number(r.unitsWeighted||0);
+        goal  = Number(r.goal||0);
+        rewards = r.rewards || [];
       }
-      return total;
-    }
+    }catch(e){ /* fallback abajo */ }
+  }
 
-    function goalFor(user){
-      const n = s => (s||'').toLowerCase().trim();
-      const adv = GOALS.find(g => g.scope==='adv' && n(g.region)===n(user.regionName) && n(g.local)===n(user.localName) && n(g.advisor)===n(user.advisorName));
-      if(adv) return adv.goal;
-      const loc = GOALS.find(g => g.scope==='loc' && n(g.region)===n(user.regionName) && n(g.local)===n(user.localName));
-      if(loc) return loc.goal;
-      const reg = GOALS.find(g => g.scope==='reg' && n(g.region)===n(user.regionName));
-      if(reg) return reg.goal;
-      return 100;
-    }
+  // Fallback simple si no hay server: usa historial local
+  if(!goal && !rewards.length){
+    // Mantén meta por defecto si no tienes objetivos en servidor
+    goal = 100;
+  }
 
-    function initLogin(){
-      const selRegion = S("#login-region");
-      selRegion.innerHTML = '<option value="">Selecciona...</option>' + REGIONS.map(r => '<option value="'+r.id+'">'+r.name+'</option>').join("");
-      S("#login-local").innerHTML = '<option value="">Selecciona...</option>';
-      S("#login-advisor").innerHTML = '<option value="">Selecciona...</option>';
+  const pct = goal ? Math.max(0, Math.min(100, Math.round((units/goal)*100))) : 0;
+  goalLbl.textContent = `Objetivo mes: ${goal||0} unidades ponderadas`;
+  bar.style.width = pct + "%";
+  ptxt.textContent = `Llevas ${units} unidades ponderadas (${pct}%).`;
 
-      selRegion.onchange = () => {
-        const r = REGIONS.find(x=> x.id===selRegion.value);
-        const selLocal = S("#login-local");
-        const selAdvisor = S("#login-advisor");
-        if(!r){ selLocal.disabled = true; selAdvisor.disabled = true; return; }
-        selLocal.disabled = false;
-        selLocal.innerHTML = '<option value="">Selecciona...</option>' + r.locales.map(l => '<option value="'+l.id+'">'+l.name+'</option>').join("");
-        selAdvisor.disabled = true;
-        selAdvisor.innerHTML = '<option value="">Selecciona...</option>';
-      };
+  // Pintar premios (usa estado que viene del servidor: past/current/future)
+  rewardsList.innerHTML = (rewards.length? rewards : []).map(r=>{
+    const money = r.value_pen!=null ? ' · '+new Intl.NumberFormat("es-PE",{style:"currency",currency:"PEN"}).format(r.value_pen) : '';
+    const state = r.state || (units >= r.threshold ? 'past' : 'future');
+    const cls = state==='current' ? 'reward current' : (state==='past' ? 'reward past' : 'reward future');
+    return `<div class="${cls}"><div>${esc(r.label)}${money}</div><div class="small">${r.threshold} <b>und.</b></div></div>`;
+  }).join("");
 
-      S("#login-local").onchange = () => {
-        const r = REGIONS.find(x=> x.id===S("#login-region").value);
-        const l = r ? r.locales.find(x=> x.id===S("#login-local").value) : null;
-        const selAdvisor = S("#login-advisor");
-        if(!l){ selAdvisor.disabled = true; return; }
-        selAdvisor.disabled = false;
-        selAdvisor.innerHTML = '<option value="">Selecciona...</option>' + l.advisors.map(a => '<option value="'+a.id+'" data-dni="'+(a.dni||'')+'">'+a.name+'</option>').join("");
-      };
-    }
+  // Mensaje "Te faltan…"
+  let next = null;
+  for(const r of (rewards || [])){ if(units < r.threshold){ next = r; break; } }
+  if(next){
+    nextLbl.innerHTML = `Te faltan ${(next.threshold-units)} <b>und.</b> para ${esc(next.label)}.`;
+  }else{
+    nextLbl.textContent = rewards.length ? "¡Alcanzaste el máximo nivel este mes!" : "";
+  }
+}
 
-    function enterApp(){
-      S("#screen-login").classList.add("hidden");
-      S("#screen-app").classList.remove("hidden");
-      S("#btn-logout").classList.remove("hidden");
-      S("#store-badge").textContent = STATE.user.regionName + " · " + STATE.user.localName + " · " + STATE.user.advisorName;
-      const histKey = "reviderm_history_"+(STATE.user.dni||STATE.user.advisorId)+"_"+monthKey();
-      try{ STATE.history = JSON.parse(localStorage.getItem(histKey)) || []; } catch{ STATE.history = []; }
-      renderAll();
-    }
+// ------------------ RENDER GENERAL ------------------
+function renderAll(){ renderCategories(); renderProductButtons(); renderCart(); renderHistory(); renderProgress(); }
 
-    function logout(){ STATE.user=null; localStorage.removeItem("reviderm_user"); location.reload(); }
-
-    let CURRENT_CAT = null, CURRENT_SUBCAT = null;
-    function renderCategories(){
-      const cats = Object.keys(CATEGORY_TREE).sort();
-      const cont = S("#cat-buttons");
-      cont.innerHTML = cats.map(c => '<button class="btn tab '+(c===CURRENT_CAT?'active':'')+'" onclick="selectCat(\''+c.replace(/'/g,"\\'")+'\')">'+c+'</button>').join("");
-      if(!CURRENT_CAT && cats.length) CURRENT_CAT = cats[0];
-      renderSubcategories();
-    }
-    function selectCat(cat){ CURRENT_CAT = cat; CURRENT_SUBCAT = null; renderCategories(); }
-    function renderSubcategories(){
-      const subs = Object.keys(CATEGORY_TREE[CURRENT_CAT] || {}).sort();
-      const cont = S("#subcat-buttons");
-      cont.innerHTML = subs.map(s => '<button class="btn tab '+(s===CURRENT_SUBCAT?'active':'')+'" onclick="selectSubcat(\''+s.replace(/'/g,"\\'")+'\')">'+s+'</button>').join("");
-      if(!CURRENT_SUBCAT && subs.length) CURRENT_SUBCAT = subs[0];
-      renderProductButtons();
-    }
-    function selectSubcat(sub){ CURRENT_SUBCAT = sub; renderSubcategories(); }
-
-    function renderProductButtons(){
-      const q = (S("#search").value||"").toLowerCase().trim();
-      let prods = [];
-      if(q){
-        prods = PRODUCTS.filter(p => (p.name+" "+(p.sku||"")).toLowerCase().includes(q));
-      } else {
-        const ids = (CATEGORY_TREE[CURRENT_CAT]||{})[CURRENT_SUBCAT] || [];
-        prods = PRODUCTS.filter(p => ids.includes(p.id));
-      }
-      const cont = S("#product-buttons");
-      if(prods.length===0){ cont.innerHTML = '<div class="small">Sin resultados.</div>'; return; }
-      cont.innerHTML = prods.map(p => {
-        const price = (p.price!=null? fmt(p.price): "S/ —");
-        return '<div class="card" style="padding:10px;min-width:220px;flex:1">'+
-          '<div style="font-weight:700">'+p.name+'</div>'+
-          '<div class="small">SKU '+(p.sku||"-")+'</div>'+
-          '<div class="pill" style="margin-top:6px;display:inline-block">'+price+'</div>'+
-          '<div class="row" style="margin-top:8px;gap:6px;align-items:center">'+
-            '<button class="btn small tab" onclick="decQty(\''+p.id+'\')">−</button>'+
-            '<span id="qty-'+p.id+'" class="pill">0</span>'+
-            '<button class="btn small tab" onclick="incQty(\''+p.id+'\')">+</button>'+
-            '<button class="btn small add" style="margin-left:8px" onclick="addQtyToCart(\''+p.id+'\')">Añadir</button>'+
-          '</div>'+
-        '</div>';
-      }).join("");
-    }
-
-    const qtyBuffer = new Map();
-    function incQty(pid){ qtyBuffer.set(pid, (qtyBuffer.get(pid)||0)+1); S('#qty-'+pid).textContent = qtyBuffer.get(pid); }
-    function decQty(pid){ const v=(qtyBuffer.get(pid)||0)-1; qtyBuffer.set(pid, Math.max(0,v)); S('#qty-'+pid).textContent = qtyBuffer.get(pid); }
-    function addQtyToCart(pid){
-      const qty = qtyBuffer.get(pid)||0; if(qty<=0) return;
-      const p = PRODUCTS.find(x=> x.id===pid);
-      const idx = STATE.cart.findIndex(l => l.productId === pid);
-      const price = p && p.price ? p.price : 0;
-      if(idx>=0) STATE.cart[idx].qty += qty;
-      else STATE.cart.push({ productId: pid, qty, price });
-      qtyBuffer.set(pid,0); S('#qty-'+pid).textContent = 0;
-      renderCart();
-    }
-
-    function removeLine(i){ STATE.cart.splice(i,1); renderCart(); }
-    function submitSale(){
-      if(STATE.cart.length===0){ alert("No hay productos en el carrito"); return; }
-      const sale = {
-        id: crypto.randomUUID(),
-        date: new Date().toISOString().slice(0,10),
-        items: STATE.cart.map(l => ({...l})),
-        totalUnits: STATE.cart.reduce((a,l)=>a+l.qty,0),
-        totalAmount: STATE.cart.reduce((a,l)=>a+l.qty*(l.price||0),0),
-      };
-      STATE.history.push(sale);
-      STATE.cart = [];
-      const histKey = "reviderm_history_"+(STATE.user.dni||STATE.user.advisorId)+"_"+monthKey();
-      localStorage.setItem(histKey, JSON.stringify(STATE.history));
-      renderAll();
-      alert("Venta registrada");
-    }
-
-    function renderCart(){
-      S("#cart-count").textContent = STATE.cart.length + " ítems";
-      const list = S("#cart-list");
-      if(STATE.cart.length===0){ list.innerHTML = '<div class="small">Añade productos para registrar la venta de hoy.</div>'; S("#cart-total").textContent = fmt(0); return; }
-      list.innerHTML = STATE.cart.map((l,i)=>{
-        const p = PRODUCTS.find(x=>x.id===l.productId);
-        return '<div class="row card" style="padding:8px;align-items:center;justify-content:space-between">'+
-          '<div><div style="font-weight:600)">'+(p?p.name:"?")+'</div>'+
-          '<div class="small">SKU '+(p?p.sku:"")+' · '+l.qty+' <b>und.</b> · '+(l.price?fmt(l.price):"S/ —")+'</div></div>'+
-          '<button class="btn small remove" onclick="removeLine('+i+')">Quitar</button></div>';
-      }).join("");
-      const total = STATE.cart.reduce((a,l)=>a+l.qty*(l.price||0),0);
-      S("#cart-total").textContent = fmt(total);
-    }
-
-    function renderHistory(){
-      const cont = S("#history");
-      if(STATE.history.length===0){ cont.innerHTML = ""; return; }
-      cont.innerHTML = '<div class="title" style="font-size:16px">Historial reciente</div>' +
-        STATE.history.slice().reverse().slice(0,5).map(h=>{
-          return '<div class="row card" style="padding:8px;align-items:center;justify-content:space-between">'+
-            '<div><div style="font-weight:600)">'+h.date+'</div>'+
-            '<div class="small">'+h.items.length+' líneas · '+h.totalUnits+' <b>und.</b> · '+fmt(h.totalAmount)+'</div></div>'+
-            '<div class="pill" style="background:#ecfdf5;border-color:#bbf7d0;color:#065f46">✓ registrado</div>'+
-          '</div>';
-        }).join("");
-    }
-
-    function renderProgress(){
-      const units = historyWeightedUnits();
-      const goal = goalFor(STATE.user);
-      const pct = Math.max(0, Math.min(100, Math.round((units/goal)*100)));
-      S("#goal-label").textContent = "Objetivo mes: " + goal + " unidades ponderadas";
-      const bar = S("#progress-bar"); bar.style.width = pct+"%";
-      S("#progress-text").textContent = "Llevas " + units + " unidades ponderadas (" + pct + "%).";
-
-      const list = S("#rewards-list");
-      const fmtS = (v) => v==null? "" : new Intl.NumberFormat("es-PE",{style:"currency",currency:"PEN"}).format(v);
-      const thresholds = REWARDS.slice().sort((a,b)=>a.threshold-b.threshold);
-
-      // Actual = mayor umbral <= unidades; si ninguno, resaltar el primero.
-      let currentIdx = -1;
-      for (let i=0; i<thresholds.length; i++){
-        if (units >= thresholds[i].threshold) currentIdx = i;
-      }
-      if (currentIdx === -1) currentIdx = 0;
-
-      list.innerHTML = thresholds.map((r, idx)=>{
-        let state = 'future';
-        if (idx < currentIdx) state = 'past';
-        else if (idx === currentIdx) state = 'current';
-        const money = r.value!=null ? ' · '+fmtS(r.value) : '';
-        return '<div class="reward '+state+'"><div>'+r.label+money+'</div><div class="small">'+r.threshold+' <b>und.</b></div></div>';
-      }).join("");
-
-      const next = thresholds.find(r=> r.threshold > units);
-      if (next){
-        S("#rewards-next").innerHTML = "Te faltan "+(next.threshold-units)+" <b>und.</b> para "+esc(next.label)+".";
-      } else {
-        S("#rewards-next").textContent = "¡Alcanzaste el máximo nivel este mes!";
-      }
-    }
-
-    function renderAll(){ renderCategories(); renderProductButtons(); renderCart(); renderHistory(); renderProgress(); }
-
-    window.addEventListener("load", ()=>{
-      if("serviceWorker" in navigator){ navigator.serviceWorker.register("./sw.js"); }
-      initLogin();
-      S("#btn-login").onclick = ()=>{
-        const rId = S("#login-region").value; const lId = S("#login-local").value; const aId = S("#login-advisor").value;
-        const dniInput = onlyDigits(S("#login-dni").value);
-        if(!rId || !lId || !aId){ alert("Selecciona región, local y asesora"); return; }
-        const r = REGIONS.find(x=> x.id===rId);
-        const l = r.locales.find(x=> x.id===lId);
-        const a = l.advisors.find(x=> x.id===aId);
-        const dniExpected = onlyDigits(a.dni||'');
-        if(!dniExpected){ alert("No hay DNI registrado para esta asesora en la base. Verifica el Excel."); return; }
-        if(dniInput !== dniExpected){ alert("DNI incorrecto. Solo se permiten dígitos."); return; }
-        STATE.user = { regionId:r.id, regionName:r.name, localId:l.id, localName:l.name, advisorId:a.id, advisorName:a.name, dni:dniExpected };
-        localStorage.setItem("reviderm_user", JSON.stringify(STATE.user));
-        enterApp();
-      };
-      S("#btn-logout").onclick = logout;
-      S("#btn-submit").onclick = submitSale;
-    });
+// ------------------ ARRANQUE ------------------
+window.addEventListener("load", ()=>{
+  if("serviceWorker" in navigator){ navigator.serviceWorker.register("./sw.js"); }
+  initLogin();
+  S("#btn-logout").onclick = logout;
+  S(
   </script>
 </body>
 </html>
