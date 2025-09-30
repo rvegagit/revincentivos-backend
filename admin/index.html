@@ -1,96 +1,136 @@
 <!doctype html>
 <html lang="es">
 <head>
+  <meta charset="utf-8">
+  <title>Reviderm · ventas diarias</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
-<meta name="format-detection" content="telephone=no">
-<style>
-  :root{ --berry:#7c003d; }
-  html,body{ margin:0; }
-  body{ font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu; color:#111; background:#fff; }
-  /* La pantalla de login debe poder desplazarse en móviles */
-  #screen-login{ min-height:100dvh; overflow:auto; display:flex; }
-  .container{ width:100%; max-width:720px; margin:0 auto; padding:16px; }
-  .login-card{ background:#fff; border:1px solid #eee; border-radius:12px; padding:16px; }
+  <meta name="format-detection" content="telephone=no">
+  <link rel="manifest" href="manifest.webmanifest">
+  <meta name="theme-color" content="#7c003d">
 
-  /* Formulario 100% ancho + alto de toque cómodo */
-  label{ display:block; font-weight:600; font-size:14px; margin:12px 0 6px; }
-  select, input{
-    width:100%; height:48px; font-size:16px; /* 16px evita zoom de iOS */
-    border:1px solid #ddd; border-radius:12px; padding:10px 12px; background:#fff;
-    appearance:auto; -webkit-appearance:menulist;
-  }
-  /* Botón grande, berry + letras blancas */
-  .btn{ width:100%; height:48px; border:none; border-radius:12px; background:var(--berry); color:#fff; font-weight:700; cursor:pointer; }
+  <style>
+    :root{
+      --berry:#7c003d;
+      --berry-700:#640331;
+      --green:#16a34a;           /* actual */
+      --green-strong:#079455;    /* borde grueso */
+      --plomo:#9ca3af;           /* pasado (gris) */
+      --bg:#ffffff;
+      --text:#111111;
+      --muted:#555555;
+      --pill:#f3f4f6;
+      --border:#e5e7eb;
+    }
+    *{box-sizing:border-box}
+    html,body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu}
+    .container{max-width:960px;margin:0 auto;padding:16px}
+    .hidden{display:none !important}
+    .row{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+    .space{height:12px}
+    .small{font-size:12px;color:var(--muted)}
+    .title{font-weight:800}
+    .card{border:1px solid var(--border);border-radius:12px;background:#fff}
 
-  /* Pequeñas utilidades */
-  .small{ color:#555; font-size:12px; }
-  .mt{ margin-top:12px; }
-</style>
+    /* Botones */
+    .btn{
+      background:var(--berry);color:#fff;border:none;border-radius:12px;
+      padding:12px 14px;font-weight:800;cursor:pointer;line-height:1;user-select:none
+    }
+    .btn:active{transform:translateY(1px)}
+    .btn.small{padding:8px 10px;border-radius:10px;font-weight:700}
+    .btn.tab{background:#fff;color:var(--berry);border:1px solid var(--berry)}
+    .btn.tab.active{background:var(--berry);color:#fff}
+    .btn.add{background:var(--berry);color:#fff}      /* “Añadir” en berry con letras blancas */
+    .btn.remove{background:var(--berry);color:#fff}   /* “Quitar” letras blancas */
+    .btn.outline{background:#fff;color:var(--berry);border:1px solid var(--berry)}
+    .btn.full{width:100%;height:48px}
+
+    /* Header */
+    header{
+      background:var(--berry);
+      color:#fff;
+      position:sticky;top:0;z-index:10
+    }
+    header .inner{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:12px 16px}
+    header .title{font-size:16px;font-weight:800}
+    header .badge{font-size:12px;background:rgba(255,255,255,.15);padding:6px 8px;border-radius:999px}
+
+    /* Login */
+    #screen-login{min-height:100dvh;display:flex;align-items:flex-start}
+    .login-card{padding:16px}
+    label{display:block;font-weight:700;font-size:14px;margin:12px 0 6px}
+    select,input{
+      width:100%;height:48px;font-size:16px;border:1px solid #ddd;border-radius:12px;padding:10px 12px;background:#fff;
+      appearance:auto;-webkit-appearance:menulist
+    }
+
+    /* Tabs cat/subcat + productos */
+    #cat-buttons, #subcat-buttons{display:flex;gap:8px;flex-wrap:wrap}
+    #product-buttons{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
+    .pill{display:inline-block;background:var(--pill);border:1px solid var(--border);padding:6px 10px;border-radius:999px;font-size:12px;color:#111}
+
+    /* Carrito */
+    #cart{padding:12px}
+    #cart-list > .line{display:flex;justify-content:space-between;align-items:center;padding:8px;border:1px solid var(--border);border-radius:10px;margin:8px 0}
+    #cart-total{font-weight:800}
+
+    /* Progreso */
+    .progress-wrap{padding:16px}
+    .bar-outer{height:12px;background:#f3f4f6;border-radius:999px;overflow:hidden;border:1px solid var(--border)}
+    .bar-inner{height:100%;width:0;background:linear-gradient(90deg,#22c55e,#16a34a)}
+    .goal-line{font-size:13px;color:#374151}
+    .big{font-size:18px;font-weight:800}
+
+    /* Premios del mes */
+    #rewards{padding:16px}
+    .rewards-wrap{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
+    .reward{
+      border:2px solid var(--border);border-radius:12px;padding:12px;position:relative;background:#fff
+    }
+    .reward .label{font-weight:800}
+    .reward .sub{font-size:12px;color:#374151;margin-top:6px}
+    .reward.past{
+      color:#6b7280;background:#f9fafb;border-color:#e5e7eb;filter:grayscale(100%);opacity:.8  /* plomo */
+    }
+    .reward.current{
+      border-width:3px;border-color:var(--green-strong);box-shadow:0 0 0 3px rgba(22,163,74,.15)
+    }
+    .here{
+      position:absolute;right:8px;top:8px;background:#dcfce7;color:#065f46;border:2px solid var(--green-strong);border-radius:999px;
+      padding:4px 8px;font-size:11px;font-weight:900;text-transform:uppercase
+    }
+
+    /* Layout app */
+    #screen-app .grid{display:grid;grid-template-columns:1.3fr .7fr;gap:12px}
+    @media (max-width:900px){
+      #screen-app .grid{grid-template-columns:1fr}
+    }
+
+    /* Buscador */
+    .search-row{display:flex;gap:8px;align-items:center}
+    .search-row input{flex:1}
+  </style>
 </head>
 <body>
-  <h1>Reviderm · Carga mensual (CSV)</h1>
-  <p class="small">Sube archivos CSV. Pega tu <b>ADMIN_SECRET</b> para autorizar.</p>
-  <div class="row">
-    <input id="secret" placeholder="ADMIN_SECRET">
-  </div>
 
-  <div class="card">
-    <h3>1) Asesoras</h3>
-    <p class="small">CSV columnas: <code>region,local,name,dni</code>. El backend hashea el DNI por ti.</p>
-    <input type="file" id="csv-advisors" accept=".csv">
-    <button onclick="upload('advisors','csv-advisors')">Subir asesoras</button>
-    <pre>region,local,name,dni
-Lima,Jockey Plaza,Ana Perez,43388812
-Lima,San Miguel,Raúl Gómez,45678901</pre>
-  </div>
+  <!-- HEADER -->
+  <header class="hidden" id="app-header">
+    <div class="inner container">
+      <div>
+        <div class="title">Reviderm · ventas diarias</div>
+        <div class="badge" id="store-badge">—</div>
+      </div>
+      <button id="btn-logout" class="btn small">Salir</button>
+    </div>
+  </header>
 
-  <div class="card">
-    <h3>2) Productos</h3>
-    <p class="small">CSV columnas: <code>id,sku,name,category,subcategory,price</code></p>
-    <input type="file" id="csv-products" accept=".csv">
-    <button onclick="upload('products','csv-products')">Subir productos</button>
-    <pre>id,sku,name,category,subcategory,price
-sku123,123,Essential Clean,Essential,Limpieza,89.9
-sku888,888,Intelligence Serum,Intelligence,Antiage,199</pre>
-  </div>
+  <!-- LOGIN -->
+  <section id="screen-login">
+    <div class="container">
+      <h1 style="margin:16px 0 8px">Reviderm · ventas diarias</h1>
+      <div class="card login-card">
+        <label for="login-region">Región</label>
+        <select id="login-region"><option value="">Selecciona…</option></select>
 
-  <div class="card">
-    <h3>3) Objetivos del mes</h3>
-    <p class="small">CSV columnas: <code>month,region,local,advisor_name,goal_units</code> (puedes omitir <code>advisor_name</code> para fijar por local o por región).</p>
-    <input type="file" id="csv-goals" accept=".csv">
-    <button onclick="upload('goals','csv-goals')">Subir objetivos</button>
-    <pre>month,region,local,advisor_name,goal_units
-2025-10,Lima,Jockey Plaza,Ana Perez,60
-2025-10,Lima,San Miguel,,120
-2025-10,Lima,,,100</pre>
-  </div>
-
-  <div class="card">
-    <h3>4) Premios del mes</h3>
-    <p class="small">CSV columnas: <code>month,threshold,label,value_pen</code></p>
-    <input type="file" id="csv-rewards" accept=".csv">
-    <button onclick="upload('rewards','csv-rewards')">Subir premios</button>
-    <pre>month,threshold,label,value_pen
-2025-10,20,Bono 1,50
-2025-10,40,Bono 2,100
-2025-10,60,Bono 3,200</pre>
-  </div>
-
-  <script>
-    async function upload(type, inputId){
-      const f = document.getElementById(inputId).files[0];
-      if(!f){ alert("Selecciona un CSV"); return; }
-      const secret = document.getElementById('secret').value.trim();
-      if(!secret){ alert("Ingresa ADMIN_SECRET"); return; }
-      const text = await f.text();
-      const r = await fetch('/.netlify/functions/admin-import?type='+type, {
-        method:'POST',
-        headers: {'content-type':'text/csv','x-admin-secret': secret},
-        body: text
-      });
-      const j = await r.json().catch(()=>({}));
-      alert(JSON.stringify(j, null, 2));
-    }
-  </script>
-</body>
-</html>
+        <label for="login-local">Local</label>
+        <select id="login-local" disabled><option value="">Selecciona…</option></select>
