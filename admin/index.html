@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Reviderm · Admin import</title>
+  <style>
+    body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu;max-width:800px;margin:24px auto;padding:0 12px;color:#111}
+    h1{font-size:20px}
+    .card{border:1px solid #e5e5e5;border-radius:12px;padding:16px;margin:16px 0}
+    input,select{padding:8px;border:1px solid #ddd;border-radius:8px}
+    button{padding:10px 14px;border-radius:10px;border:1px solid #7c003d;background:#7c003d;color:#fff;font-weight:700;cursor:pointer}
+    .row{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+    .small{font-size:12px;color:#555}
+    pre{background:#f6f6f6;padding:8px;border-radius:8px;overflow:auto}
+  </style>
+</head>
+<body>
+  <h1>Reviderm · Carga mensual (CSV)</h1>
+  <p class="small">Sube archivos CSV. Pega tu <b>ADMIN_SECRET</b> para autorizar.</p>
+  <div class="row">
+    <input id="secret" placeholder="ADMIN_SECRET">
+  </div>
+
+  <div class="card">
+    <h3>1) Asesoras</h3>
+    <p class="small">CSV columnas: <code>region,local,name,dni</code>. El backend hashea el DNI por ti.</p>
+    <input type="file" id="csv-advisors" accept=".csv">
+    <button onclick="upload('advisors','csv-advisors')">Subir asesoras</button>
+    <pre>region,local,name,dni
+Lima,Jockey Plaza,Ana Perez,43388812
+Lima,San Miguel,Raúl Gómez,45678901</pre>
+  </div>
+
+  <div class="card">
+    <h3>2) Productos</h3>
+    <p class="small">CSV columnas: <code>id,sku,name,category,subcategory,price</code></p>
+    <input type="file" id="csv-products" accept=".csv">
+    <button onclick="upload('products','csv-products')">Subir productos</button>
+    <pre>id,sku,name,category,subcategory,price
+sku123,123,Essential Clean,Essential,Limpieza,89.9
+sku888,888,Intelligence Serum,Intelligence,Antiage,199</pre>
+  </div>
+
+  <div class="card">
+    <h3>3) Objetivos del mes</h3>
+    <p class="small">CSV columnas: <code>month,region,local,advisor_name,goal_units</code> (puedes omitir <code>advisor_name</code> para fijar por local o por región).</p>
+    <input type="file" id="csv-goals" accept=".csv">
+    <button onclick="upload('goals','csv-goals')">Subir objetivos</button>
+    <pre>month,region,local,advisor_name,goal_units
+2025-10,Lima,Jockey Plaza,Ana Perez,60
+2025-10,Lima,San Miguel,,120
+2025-10,Lima,,,100</pre>
+  </div>
+
+  <div class="card">
+    <h3>4) Premios del mes</h3>
+    <p class="small">CSV columnas: <code>month,threshold,label,value_pen</code></p>
+    <input type="file" id="csv-rewards" accept=".csv">
+    <button onclick="upload('rewards','csv-rewards')">Subir premios</button>
+    <pre>month,threshold,label,value_pen
+2025-10,20,Bono 1,50
+2025-10,40,Bono 2,100
+2025-10,60,Bono 3,200</pre>
+  </div>
+
+  <script>
+    async function upload(type, inputId){
+      const f = document.getElementById(inputId).files[0];
+      if(!f){ alert("Selecciona un CSV"); return; }
+      const secret = document.getElementById('secret').value.trim();
+      if(!secret){ alert("Ingresa ADMIN_SECRET"); return; }
+      const text = await f.text();
+      const r = await fetch('/.netlify/functions/admin-import?type='+type, {
+        method:'POST',
+        headers: {'content-type':'text/csv','x-admin-secret': secret},
+        body: text
+      });
+      const j = await r.json().catch(()=>({}));
+      alert(JSON.stringify(j, null, 2));
+    }
+  </script>
+</body>
+</html>
