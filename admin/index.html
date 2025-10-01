@@ -31,10 +31,8 @@
     .card{border:1px solid var(--border);border-radius:12px;background:#fff}
 
     /* Botones */
-    .btn{
-      background:var(--berry);color:#fff;border:none;border-radius:12px;
-      padding:12px 14px;font-weight:800;cursor:pointer;line-height:1;user-select:none
-    }
+    .btn{ background:var(--berry);color:#fff;border:none;border-radius:12px;
+          padding:12px 14px;font-weight:800;cursor:pointer;line-height:1;user-select:none }
     .btn:active{transform:translateY(1px)}
     .btn.small{padding:8px 10px;border-radius:10px;font-weight:700}
     .btn.tab{background:#fff;color:var(--berry);border:1px solid var(--berry)}
@@ -59,7 +57,7 @@
       appearance:auto;-webkit-appearance:menulist
     }
 
-    /* Picker móvil alternativo con botones */
+    /* Picker móvil alternativo */
     #mobile-picker{ display:none; margin-top:8px; }
     .pgroup{ margin:10px 0; }
     .pgroup .gtitle{ font-weight:800; margin-bottom:6px; }
@@ -67,7 +65,7 @@
     .pbtn{ background:#fff; color:var(--berry); border:1px solid var(--berry); border-radius:999px; padding:8px 12px; font-weight:700; }
     .pbtn.active{ background:var(--berry); color:#fff; }
 
-    /* Mostrar el picker en pantallas táctiles (dejamos también los selects visibles) */
+    /* En pantallas táctiles mostramos el picker también */
     @media (hover:none) and (pointer:coarse){
       #mobile-picker{ display:block; }
     }
@@ -128,6 +126,7 @@
       <div class="card login-card">
 
         <div id="loading-datasets" class="small" style="padding:8px 0">Cargando datos…</div>
+        <div id="diag" class="small" style="padding:4px 0;color:#065f46"></div>
 
         <div class="select-row">
           <label for="login-region">Región</label>
@@ -171,7 +170,7 @@
     <div class="container">
       <div class="grid">
 
-        <!-- IZQUIERDA: CATEGORÍAS + PRODUCTOS -->
+        <!-- IZQUIERDA -->
         <div>
           <div class="card" style="padding:12px">
             <div class="search-row">
@@ -197,7 +196,7 @@
           </div>
         </div>
 
-        <!-- DERECHA: PENDIENTE + PROGRESO -->
+        <!-- DERECHA -->
         <div>
           <div class="card" id="cart">
             <div class="row" style="justify-content:space-between">
@@ -245,7 +244,7 @@
   </section>
 
   <script>
-    /* ====== Core ====== */
+    /* ========= Core ========= */
     const API = '/.netlify/functions';
     const S = sel => document.querySelector(sel);
     const fmt = n => new Intl.NumberFormat("es-PE",{style:"currency",currency:"PEN"}).format(n||0);
@@ -253,24 +252,29 @@
     const onlyDigits = s => (s||"").replace(/\D+/g,"");
     const esc = s => (s||"").replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 
-    let REGIONS = [];        // desde lookup
-    let PRODUCTS = [];       // desde lookup
-    let CATEGORY_TREE = {};  // desde lookup (o calculado)
+    let REGIONS = [];
+    let PRODUCTS = [];
+    let CATEGORY_TREE = {};
     let STATE = { user:null, cart:[], history:[] };
 
-    /* ====== Data loading ====== */
+    /* ========= Cargar datos (con anti-caché) ========= */
     async function loadDatasets(){
       const loading = S("#loading-datasets");
+      const diag = S("#diag");
       try{
-        const r = await fetch(`${API}/lookup`, { cache:"no-store" });
+        const url = `${API}/lookup?t=${Date.now()}`; // anti-caché (clave para mobile)
+        const r = await fetch(url, { cache:"no-store" });
+        if(!r.ok) throw new Error("lookup " + r.status);
         const data = await r.json();
         if(!data.ok) throw new Error("lookup not ok");
+
         REGIONS = data.regions || [];
         PRODUCTS = data.products || [];
         CATEGORY_TREE = data.categoryTree || buildTreeFromProducts(PRODUCTS);
 
+        diag.textContent = `Datos cargados: ${REGIONS.length} regiones · ${PRODUCTS.length} productos`;
         if(!REGIONS.length){
-          loading.textContent = "No hay Regiones/Locales/Asesoras cargadas. Sube el CSV en /admin → Asesoras.";
+          loading.textContent = "No hay Regiones/Locales/Asesoras en la base. Verifica /admin (Asesoras).";
           return;
         }
         loading.classList.add("hidden");
@@ -278,7 +282,8 @@
         initLogin();
         renderMobilePickers(); // picker móvil
       }catch(e){
-        loading.textContent = "Error cargando datos. Verifica 'lookup' y que /admin tenga datos.";
+        loading.textContent = "No se pudo cargar datos. Revisa la función 'lookup' o tu conexión.";
+        diag.textContent = "Error: " + String(e);
       }
     }
     function buildTreeFromProducts(list){
@@ -298,7 +303,7 @@
       });
     }
 
-    /* ====== Picker móvil ====== */
+    /* ========= Picker móvil ========= */
     function renderMobilePickers(){
       const pr = S("#pick-regions"), pl = S("#pick-locals"), pa = S("#pick-advisors");
       if(!pr || !pl || !pa) return;
@@ -356,18 +361,20 @@
       }
     }
 
-    /* ====== Login ====== */
+    /* ========= Login ========= */
     function initLogin(){
       const selRegion = S("#login-region"), selLocal = S("#login-local"), selAdv = S("#login-advisor");
 
-      selRegion.innerHTML = '<option value="">Selecciona…</option>'+REGIONS.map(r=>`<option value="${r.id}">${r.name}</option>`).join("");
+      selRegion.innerHTML = '<option value="">Selecciona…</option>'
+        + REGIONS.map(r=>`<option value="${r.id}">${r.name}</option>`).join("");
       selLocal.disabled = true; selAdv.disabled = true;
 
       selRegion.onchange = ()=>{
         const r = REGIONS.find(x=>x.id===selRegion.value);
         if(!r){ selLocal.disabled=true; selAdv.disabled=true; renderMobilePickers(); return; }
         selLocal.disabled=false;
-        selLocal.innerHTML = '<option value="">Selecciona…</option>'+r.locales.map(l=>`<option value="${l.id}">${l.name}</option>`).join("");
+        selLocal.innerHTML = '<option value="">Selecciona…</option>'
+          + r.locales.map(l=>`<option value="${l.id}">${l.name}</option>`).join("");
         selAdv.disabled=true; selAdv.innerHTML = '<option value="">Selecciona…</option>';
         renderMobilePickers();
       };
@@ -376,7 +383,8 @@
         const l = r ? r.locales.find(x=>x.id===selLocal.value) : null;
         if(!l){ selAdv.disabled=true; renderMobilePickers(); return; }
         selAdv.disabled=false;
-        selAdv.innerHTML = '<option value="">Selecciona…</option>'+l.advisors.map(a=>`<option value="${a.id}">${a.name}</option>`).join("");
+        selAdv.innerHTML = '<option value="">Selecciona…</option>'
+          + l.advisors.map(a=>`<option value="${a.id}">${a.name}</option>`).join("");
         renderMobilePickers();
       };
 
@@ -391,7 +399,7 @@
 
         let resp;
         try{
-          resp = await fetch(`${API}/login`, {
+          resp = await fetch(`${API}/login?t=${Date.now()}`, {
             method:'POST', headers:{'content-type':'application/json'},
             body: JSON.stringify({ region:r.name, local:l.name, advisor:a.name, dni })
           }).then(x=>x.json());
@@ -419,7 +427,7 @@
     }
     function logout(){ STATE.user=null; localStorage.removeItem("reviderm_user"); location.reload(); }
 
-    /* ====== Cat/Subcat/Productos ====== */
+    /* ========= Categorías / Productos ========= */
     let CURRENT_CAT=null, CURRENT_SUBCAT=null;
     function renderCategories(){
       const cats = Object.keys(CATEGORY_TREE).sort();
@@ -469,7 +477,7 @@
       }).join("");
     }
 
-    /* ====== Carrito / Venta ====== */
+    /* ========= Carrito / Venta ========= */
     function addQtyToCart(pid){
       const qty=qtyBuffer.get(pid)||0; if(qty<=0) return;
       const p=PRODUCTS.find(x=>x.id===pid);
@@ -495,7 +503,7 @@
 
       let okCloud=false, saleId=null;
       try{
-        const r = await fetch(`${API}/sale`,{
+        const r = await fetch(`${API}/sale?t=${Date.now()}`,{
           method:'POST', headers:{'content-type':'application/json'},
           body: JSON.stringify(payload)
         }).then(x=>x.json());
@@ -535,7 +543,7 @@
       S("#cart-total").textContent = fmt(total);
     }
 
-    /* ====== Progreso / Premios ====== */
+    /* ========= Progreso / Premios ========= */
     async function renderProgress(){
       const month = monthKey();
       const goalLbl=S("#goal-label"), bar=S("#progress-bar"), ptxt=S("#progress-text"),
@@ -544,8 +552,8 @@
 
       if(STATE.user?.advisorId){
         try{
-          const q = new URLSearchParams({ advisorId:STATE.user.advisorId, month }).toString();
-          const r = await fetch(`${API}/progress?${q}`).then(x=>x.json());
+          const q = new URLSearchParams({ advisorId:STATE.user.advisorId, month, t:Date.now() }).toString();
+          const r = await fetch(`${API}/progress?${q}`, { cache:"no-store" }).then(x=>x.json());
           if(r && r.ok){ units=+r.unitsWeighted||0; goal=+r.goal||0; rewards=r.rewards||[]; }
         }catch(e){}
       }
@@ -575,18 +583,17 @@
       else{ nextLbl.textContent = rewards.length ? "¡Alcanzaste el máximo nivel este mes!" : ""; }
     }
 
-    /* ====== Render general ====== */
-    function renderAll(){
-      renderCategories(); renderProductButtons(); renderCart(); renderProgress();
-    }
+    /* ========= Render general ========= */
+    function renderAll(){ renderCategories(); renderProductButtons(); renderCart(); renderProgress(); }
 
-    /* ====== Inicio ====== */
+    /* ========= Inicio ========= */
     window.addEventListener("load", ()=>{
-      if("serviceWorker" in navigator){ navigator.serviceWorker.register("./sw.js?v=picker").catch(()=>{}); }
+      if("serviceWorker" in navigator){ navigator.serviceWorker.register("./sw.js?v=picker3").catch(()=>{}); }
       loadDatasets();
       S("#btn-logout").onclick = logout;
       S("#btn-submit").onclick = submitSale;
       S("#btn-clear").onclick = ()=>{ S("#search").value=""; renderProductButtons(); };
+
       S("#search").addEventListener("input", renderProductButtons);
 
       try{
