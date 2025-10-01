@@ -5,7 +5,7 @@ export async function handler() {
   try {
     const sql = neon(process.env.DATABASE_URL);
 
-    // 1) Advisors: región → local → asesora
+    // Advisors: region -> local -> advisor
     const adv = await sql`
       select
         coalesce(region,'') as region,
@@ -15,26 +15,32 @@ export async function handler() {
       where region is not null and local is not null and name is not null
       order by region, local, name
     `;
+
     const slug = s => String(s).normalize().trim().toLowerCase()
       .replace(/\s+/g,'-').replace(/[^0-9a-záéíóúñ\-]/gi,'');
+
     const regionsMap = new Map();
     for (const r of adv) {
-      const rkey = r.region;
-      const lkey = r.local;
-      if (!regionsMap.has(rkey)) regionsMap.set(rkey, new Map());
-      const lm = regionsMap.get(rkey);
-      if (!lm.has(lkey)) lm.set(lkey, new Set());
-      lm.get(lkey).add(r.advisor);
+      const R = r.region, L = r.local, A = r.advisor;
+      if (!regionsMap.has(R)) regionsMap.set(R, new Map());
+      const lm = regionsMap.get(R);
+      if (!lm.has(L)) lm.set(L, new Set());
+      lm.get(L).add(A);
     }
     const regions = Array.from(regionsMap.entries()).map(([rname, lm]) => ({
-      id: slug(rname), name: rname,
+      id: slug(rname) || 'r-' + Math.random().toString(36).slice(2),
+      name: rname,
       locales: Array.from(lm.entries()).map(([lname, advisorsSet]) => ({
-        id: slug(lname), name: lname,
-        advisors: Array.from(advisorsSet).map(a => ({ id: slug(a), name: a }))
+        id: slug(lname) || 'l-' + Math.random().toString(36).slice(2),
+        name: lname,
+        advisors: Array.from(advisorsSet).map(a => ({
+          id: slug(a) || 'a-' + Math.random().toString(36).slice(2),
+          name: a
+        }))
       }))
     }));
 
-    // 2) Products: con category/subcategory/price
+    // Products
     const prods = await sql`
       select
         coalesce(id, sku::text) as id,
@@ -55,13 +61,13 @@ export async function handler() {
       price: p.price == null ? null : Number(p.price)
     }));
 
-    // 3) Category tree
+    // Category tree
     const categoryTree = {};
     for (const p of products) {
       const cat = p.category || "Otros";
       const sub = p.subcategory || "General";
-      categoryTree[cat] = categoryTree[cat] || {};
-      categoryTree[cat][sub] = categoryTree[cat][sub] || [];
+      (categoryTree[cat] ||= {});
+      (categoryTree[cat][sub] ||= []);
       categoryTree[cat][sub].push(p.id);
     }
 
