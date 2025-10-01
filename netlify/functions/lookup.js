@@ -18,19 +18,16 @@ export async function handler(event) {
         body: JSON.stringify({
           ok: false,
           error: "DATABASE_URL missing",
-          hint:
-            "Agrega DATABASE_URL en Netlify → Site settings → Environment variables.",
+          hint: "Agrega DATABASE_URL en Netlify → Site settings → Environment variables.",
         }),
       };
     }
 
     const sql = neon(conn);
+    await sql`select 1`; // ping
 
-    // Comprobación rápida de conexión
-    await sql`select 1`;
-
-    // Consultas
-    let adv, prods;
+    // Advisors
+    let adv;
     try {
       adv = await sql`
         select
@@ -49,12 +46,13 @@ export async function handler(event) {
           ok: false,
           error: "Tabla 'advisors' no existe o consulta falló",
           detail: debug ? String(e) : undefined,
-          hint:
-            "Crea la tabla advisors o importa el CSV desde /admin. Abajo te dejo el SQL.",
+          hint: "Crea la tabla advisors o importa el CSV desde /admin.",
         }),
       };
     }
 
+    // Products
+    let prods;
     try {
       prods = await sql`
         select
@@ -75,53 +73,44 @@ export async function handler(event) {
           ok: false,
           error: "Tabla 'products' no existe o consulta falló",
           detail: debug ? String(e) : undefined,
-          hint:
-            "Crea la tabla products o importa el CSV desde /admin. Abajo te dejo el SQL.",
+          hint: "Crea la tabla products o importa el CSV desde /admin.",
         }),
       };
     }
 
-    // Armar regions → locales → advisors
-    const slug = s =>
-      String(s)
-        .normalize()
-        .trim()
-        .toLowerCase()
-        .replace(/\s+/g, "-")
-        .replace(/[^0-9a-záéíóúñ\-]/gi, "");
+    // regions → locales → advisors
+    const slug = s => String(s).normalize().trim().toLowerCase()
+      .replace(/\s+/g,'-').replace(/[^0-9a-záéíóúñ\-]/gi,'');
     const regionsMap = new Map();
     for (const r of adv) {
-      const R = r.region,
-        L = r.local,
-        A = r.advisor;
+      const R = r.region, L = r.local, A = r.advisor;
       if (!regionsMap.has(R)) regionsMap.set(R, new Map());
       const lm = regionsMap.get(R);
       if (!lm.has(L)) lm.set(L, new Set());
       lm.get(L).add(A);
     }
     const regions = Array.from(regionsMap.entries()).map(([rname, lm]) => ({
-      id: slug(rname) || "r-" + Math.random().toString(36).slice(2),
+      id: slug(rname) || 'r-' + Math.random().toString(36).slice(2),
       name: rname,
       locales: Array.from(lm.entries()).map(([lname, advisorsSet]) => ({
-        id: slug(lname) || "l-" + Math.random().toString(36).slice(2),
+        id: slug(lname) || 'l-' + Math.random().toString(36).slice(2),
         name: lname,
         advisors: Array.from(advisorsSet).map(a => ({
-          id: slug(a) || "a-" + Math.random().toString(36).slice(2),
-          name: a,
-        })),
-      })),
+          id: slug(a) || 'a-' + Math.random().toString(36).slice(2),
+          name: a
+        }))
+      }))
     }));
 
-    const products = (prods || []).map(p => ({
+    const products = (prods||[]).map(p => ({
       id: String(p.id),
-      sku: String(p.sku || ""),
-      name: String(p.name || ""),
-      category: String(p.category || ""),
-      subcategory: String(p.subcategory || ""),
-      price: p.price == null ? null : Number(p.price),
+      sku: String(p.sku||""),
+      name: String(p.name||""),
+      category: String(p.category||""),
+      subcategory: String(p.subcategory||""),
+      price: p.price == null ? null : Number(p.price)
     }));
 
-    // Árbol de categorías
     const categoryTree = {};
     for (const p of products) {
       const cat = p.category || "Otros";
@@ -138,27 +127,21 @@ export async function handler(event) {
         body: JSON.stringify({
           ok: false,
           error: "No hay registros en advisors",
-          hint:
-            "Carga el CSV de asesoras en /admin o inserta al menos 1 fila en la tabla advisors.",
+          hint: "Carga el CSV de asesoras en /admin o inserta al menos 1 fila en la tabla advisors."
         }),
       };
     }
 
     return {
       statusCode: 200,
-      headers: { "content-type": "application/json", "cache-control": "no-cache" },
-      body: JSON.stringify({ ok: true, regions, products, categoryTree }),
+      headers: { "content-type":"application/json", "cache-control":"no-cache" },
+      body: JSON.stringify({ ok: true, regions, products, categoryTree })
     };
   } catch (e) {
     return {
       statusCode: 200,
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify({
-        ok: false,
-        error: String(e),
-        hint:
-          "Revisa Netlify → Functions → lookup → Logs para ver el error completo.",
-      }),
+      headers: { "content-type":"application/json" },
+      body: JSON.stringify({ ok:false, error:String(e) })
     };
   }
 }
