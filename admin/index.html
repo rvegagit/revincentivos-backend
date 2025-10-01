@@ -1,312 +1,564 @@
-<script>
-/* === Reviderm PWA v7.5 (frontend conectado a backend) ===
-   Cambios clave:
-   - Login llama a /.netlify/functions/login  → devuelve advisorId
-   - Enviar venta llama a /.netlify/functions/sale
-   - Progreso del mes llama a /.netlify/functions/progress (servidor)
-   Mantiene el historial local como respaldo (offline).
-*/
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <title>Reviderm · ventas diarias</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
+  <meta name="format-detection" content="telephone=no">
+  <link rel="manifest" href="manifest.webmanifest">
+  <meta name="theme-color" content="#7c003d">
 
-const API = '/.netlify/functions';
-
-// Estas constantes ya existen en tu HTML de v7.x.
-// Si tu index.html las trae embebidas, las usamos tal cual:
-const PRODUCTS = typeof PRODUCTS !== 'undefined' ? PRODUCTS : [];
-const CATEGORY_TREE = typeof CATEGORY_TREE !== 'undefined' ? CATEGORY_TREE : {};
-const REGIONS = typeof REGIONS !== 'undefined' ? REGIONS : [];
-
-let STATE = { user: null, cart: [], history: [] };
-
-// Utilidades
-const S = sel => document.querySelector(sel);
-const fmt = n => new Intl.NumberFormat("es-PE",{ style:"currency", currency:"PEN" }).format(n||0);
-const monthKey = () => new Date().toISOString().slice(0,7);
-const onlyDigits = s => (s||"").replace(/\D+/g, "");
-const esc = s => (s||"").replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const weightForCategory = (cat="") => /intelligence/i.test(cat) ? 2 : 1;
-
-// ------------------ LOGIN ------------------
-function initLogin(){
-  // Poblar selects de Región/Local/Asesora
-  const selRegion = S("#login-region");
-  const selLocal  = S("#login-local");
-  const selAdv    = S("#login-advisor");
-
-  selRegion.innerHTML = '<option value="">Selecciona...</option>' + REGIONS.map(r => `<option value="${r.id}">${r.name}</option>`).join("");
-  selLocal.disabled = true; selAdv.disabled = true;
-
-  selRegion.onchange = () => {
-    const r = REGIONS.find(x=> x.id===selRegion.value);
-    if(!r){ selLocal.disabled = true; selAdv.disabled = true; return; }
-    selLocal.disabled = false;
-    selLocal.innerHTML = '<option value="">Selecciona...</option>' + r.locales.map(l => `<option value="${l.id}">${l.name}</option>`).join("");
-    selAdv.disabled = true; selAdv.innerHTML = '<option value="">Selecciona...</option>';
-  };
-  selLocal.onchange = () => {
-    const r = REGIONS.find(x=> x.id===selRegion.value);
-    const l = r ? r.locales.find(x=> x.id===selLocal.value) : null;
-    if(!l){ selAdv.disabled = true; return; }
-    selAdv.disabled = false;
-    selAdv.innerHTML = '<option value="">Selecciona...</option>' + l.advisors.map(a => `<option value="${a.id}">${a.name}</option>`).join("");
-  };
-
-  S("#btn-login").onclick = async () => {
-    const rId = S("#login-region").value;
-    const lId = S("#login-local").value;
-    const aId = S("#login-advisor").value;
-    const dni = onlyDigits(S("#login-dni").value);
-
-    if(!rId || !lId || !aId) { alert("Selecciona región, local y asesora"); return; }
-    if(!dni) { alert("Ingresa tu DNI (solo dígitos)"); return; }
-
-    const r = REGIONS.find(x=>x.id===rId);
-    const l = r.locales.find(x=>x.id===lId);
-    const a = l.advisors.find(x=>x.id===aId);
-
-    // Login en servidor (valida DNI contra Neon)
-    let resp;
-    try{
-      resp = await fetch(`${API}/login`, {
-        method:'POST',
-        headers:{'content-type':'application/json'},
-        body: JSON.stringify({ region: r.name, local: l.name, advisor: a.name, dni })
-      }).then(x=>x.json());
-    }catch(e){
-      alert("No se pudo conectar con el servidor. Revisa tu conexión.");
-      return;
+  <style>
+    :root{
+      --berry:#7c003d;
+      --berry-700:#640331;
+      --green:#16a34a;           /* actual */
+      --green-strong:#079455;    /* borde grueso */
+      --plomo:#9ca3af;           /* pasado (gris) */
+      --bg:#ffffff;
+      --text:#111111;
+      --muted:#555555;
+      --pill:#f3f4f6;
+      --border:#e5e7eb;
     }
-    if(!resp || !resp.ok){ alert("DNI o datos incorrectos"); return; }
+    *{box-sizing:border-box}
+    html,body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu}
+    .container{max-width:960px;margin:0 auto;padding:16px}
+    .hidden{display:none !important}
+    .row{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+    .space{height:12px}
+    .small{font-size:12px;color:var(--muted)}
+    .title{font-weight:800}
+    .card{border:1px solid var(--border);border-radius:12px;background:#fff}
 
-    STATE.user = {
-      regionId:r.id, regionName:r.name,
-      localId:l.id,  localName:l.name,
-      advisorId: resp.advisorId, advisorName: a.name,
-      dni
-    };
-    localStorage.setItem("reviderm_user", JSON.stringify(STATE.user));
-    enterApp();
-  };
-}
+    /* Botones */
+    .btn{
+      background:var(--berry);color:#fff;border:none;border-radius:12px;
+      padding:12px 14px;font-weight:800;cursor:pointer;line-height:1;user-select:none
+    }
+    .btn:active{transform:translateY(1px)}
+    .btn.small{padding:8px 10px;border-radius:10px;font-weight:700}
+    .btn.tab{background:#fff;color:var(--berry);border:1px solid var(--berry)}
+    .btn.tab.active{background:var(--berry);color:#fff}
+    .btn.add{background:var(--berry);color:#fff}      /* “Añadir” letras blancas */
+    .btn.remove{background:var(--berry);color:#fff}   /* “Quitar” letras blancas */
+    .btn.outline{background:#fff;color:var(--berry);border:1px solid var(--berry)}
+    .btn.full{width:100%;height:48px}
 
-function enterApp(){
-  S("#screen-login").classList.add("hidden");
-  S("#screen-app").classList.remove("hidden");
-  S("#btn-logout").classList.remove("hidden");
-  S("#store-badge").textContent = `${STATE.user.regionName} · ${STATE.user.localName} · ${STATE.user.advisorName}`;
+    /* Header */
+    header{
+      background:var(--berry);
+      color:#fff;
+      position:sticky;top:0;z-index:10
+    }
+    header .inner{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:12px 16px}
+    header .title{font-size:16px;font-weight:800}
+    header .badge{font-size:12px;background:rgba(255,255,255,.15);padding:6px 8px;border-radius:999px}
 
-  // Cargar historial local (respaldo offline)
-  const histKey = "reviderm_history_"+(STATE.user.dni||STATE.user.advisorId)+"_"+monthKey();
-  try{ STATE.history = JSON.parse(localStorage.getItem(histKey)) || []; } catch{ STATE.history = []; }
+    /* Login */
+    #screen-login{min-height:100dvh;display:flex;align-items:flex-start}
+    .login-card{padding:16px}
+    label{display:block;font-weight:700;font-size:14px;margin:12px 0 6px}
+    select,input{
+      width:100%;height:48px;font-size:16px;border:1px solid #ddd;border-radius:12px;padding:10px 12px;background:#fff;
+      appearance:auto;-webkit-appearance:menulist
+    }
 
-  renderAll();
-}
-function logout(){ STATE.user=null; localStorage.removeItem("reviderm_user"); location.reload(); }
+    /* Tabs cat/subcat + productos */
+    #cat-buttons, #subcat-buttons{display:flex;gap:8px;flex-wrap:wrap}
+    #product-buttons{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
+    .pill{display:inline-block;background:var(--pill);border:1px solid var(--border);padding:6px 10px;border-radius:999px;font-size:12px;color:#111}
 
-// ------------------ CATEGORÍAS/PRODUCTOS ------------------
-let CURRENT_CAT = null, CURRENT_SUBCAT = null;
+    /* Carrito */
+    #cart{padding:12px}
+    #cart-list > .line{display:flex;justify-content:space-between;align-items:center;padding:8px;border:1px solid var(--border);border-radius:10px;margin:8px 0}
+    #cart-total{font-weight:800}
 
-function renderCategories(){
-  const cats = Object.keys(CATEGORY_TREE).sort();
-  const cont = S("#cat-buttons");
-  cont.innerHTML = cats.map(c => `<button class="btn tab ${c===CURRENT_CAT?'active':''}" onclick="selectCat('${c.replace(/'/g,"\\'")}')">${c}</button>`).join("");
-  if(!CURRENT_CAT && cats.length) CURRENT_CAT = cats[0];
-  renderSubcategories();
-}
-function selectCat(cat){ CURRENT_CAT = cat; CURRENT_SUBCAT = null; renderCategories(); }
-function renderSubcategories(){
-  const subs = Object.keys(CATEGORY_TREE[CURRENT_CAT] || {}).sort();
-  const cont = S("#subcat-buttons");
-  cont.innerHTML = subs.map(s => `<button class="btn tab ${s===CURRENT_SUBCAT?'active':''}" onclick="selectSubcat('${s.replace(/'/g,"\\'")}')">${s}</button>`).join("");
-  if(!CURRENT_SUBCAT && subs.length) CURRENT_SUBCAT = subs[0];
-  renderProductButtons();
-}
-function selectSubcat(sub){ CURRENT_SUBCAT = sub; renderSubcategories(); }
+    /* Progreso */
+    .progress-wrap{padding:16px}
+    .bar-outer{height:12px;background:#f3f4f6;border-radius:999px;overflow:hidden;border:1px solid var(--border)}
+    .bar-inner{height:100%;width:0;background:linear-gradient(90deg,#22c55e,#16a34a)}
+    .goal-line{font-size:13px;color:#374151}
+    .big{font-size:18px;font-weight:800}
 
-function renderProductButtons(){
-  const q = (S("#search").value||"").toLowerCase().trim();
-  let prods = [];
-  if(q){
-    prods = PRODUCTS.filter(p => (p.name+" "+(p.sku||"")).toLowerCase().includes(q));
-  } else {
-    const ids = (CATEGORY_TREE[CURRENT_CAT]||{})[CURRENT_SUBCAT] || [];
-    prods = PRODUCTS.filter(p => ids.includes(p.id));
-  }
-  const cont = S("#product-buttons");
-  if(prods.length===0){ cont.innerHTML = '<div class="small">Sin resultados.</div>'; return; }
-  cont.innerHTML = prods.map(p => {
-    const price = (p.price!=null? fmt(p.price): "S/ —");
-    return `
-      <div class="card" style="padding:10px;min-width:220px;flex:1">
-        <div style="font-weight:700">${p.name}</div>
-        <div class="small">SKU ${p.sku||"-"}</div>
-        <div class="pill" style="margin-top:6px;display:inline-block">${price}</div>
-        <div class="row" style="margin-top:8px;gap:6px;align-items:center">
-          <button class="btn small tab" onclick="decQty('${p.id}')">−</button>
-          <span id="qty-${p.id}" class="pill">0</span>
-          <button class="btn small tab" onclick="incQty('${p.id}')">+</button>
-          <button class="btn small add" style="margin-left:8px" onclick="addQtyToCart('${p.id}')">Añadir</button>
-        </div>
-      </div>`;
-  }).join("");
-}
-const qtyBuffer = new Map();
-function incQty(pid){ qtyBuffer.set(pid, (qtyBuffer.get(pid)||0)+1); S('#qty-'+pid).textContent = qtyBuffer.get(pid); }
-function decQty(pid){ const v=(qtyBuffer.get(pid)||0)-1; qtyBuffer.set(pid, Math.max(0,v)); S('#qty-'+pid).textContent = qtyBuffer.get(pid); }
+    /* Premios del mes */
+    #rewards{padding:16px}
+    .rewards-wrap{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
+    .reward{
+      border:2px solid var(--border);border-radius:12px;padding:12px;position:relative;background:#fff
+    }
+    .reward .label{font-weight:800}
+    .reward .sub{font-size:12px;color:#374151;margin-top:6px}
+    .reward.past{
+      color:#6b7280;background:#f9fafb;border-color:#e5e7eb;filter:grayscale(100%);opacity:.8  /* plomo */
+    }
+    .reward.current{
+      border-width:3px;border-color:var(--green-strong);box-shadow:0 0 0 3px rgba(22,163,74,.15)
+    }
+    .here{
+      position:absolute;right:8px;top:8px;background:#dcfce7;color:#065f46;border:2px solid var(--green-strong);border-radius:999px;
+      padding:4px 8px;font-size:11px;font-weight:900;text-transform:uppercase
+    }
 
-// ------------------ CARRITO / ENVÍO ------------------
-function addQtyToCart(pid){
-  const qty = qtyBuffer.get(pid)||0; if(qty<=0) return;
-  const p = PRODUCTS.find(x=> x.id===pid);
-  const idx = STATE.cart.findIndex(l => l.productId === pid);
-  const price = p && p.price ? p.price : 0;
-  if(idx>=0) STATE.cart[idx].qty += qty;
-  else STATE.cart.push({ productId: pid, qty, price });
-  qtyBuffer.set(pid,0); S('#qty-'+pid).textContent = 0;
-  renderCart();
-}
-function removeLine(i){ STATE.cart.splice(i,1); renderCart(); }
+    /* Layout app */
+    #screen-app .grid{display:grid;grid-template-columns:1.3fr .7fr;gap:12px}
+    @media (max-width:900px){
+      #screen-app .grid{grid-template-columns:1fr}
+    }
 
-async function submitSale(){
-  if(STATE.cart.length===0){ alert("No hay productos en el carrito"); return; }
-  if(!STATE.user?.advisorId){ alert("Vuelve a iniciar sesión"); return; }
+    /* Buscador */
+    .search-row{display:flex;gap:8px;align-items:center}
+    .search-row input{flex:1}
+  </style>
+</head>
+<body>
+  <!-- HEADER -->
+  <header class="hidden" id="app-header">
+    <div class="inner container">
+      <div>
+        <div class="title">Reviderm · ventas diarias</div>
+        <div class="badge" id="store-badge">—</div>
+      </div>
+      <button id="btn-logout" class="btn small">Salir</button>
+    </div>
+  </header>
 
-  const payload = {
-    advisorId: STATE.user.advisorId,
-    region: STATE.user.regionName,
-    local:  STATE.user.localName,
-    date:   new Date().toISOString().slice(0,10),
-    items:  STATE.cart.map(l => ({ productId: l.productId, qty: l.qty }))
-  };
+  <!-- LOGIN -->
+  <section id="screen-login">
+    <div class="container">
+      <h1 style="margin:16px 0 8px">Reviderm · ventas diarias</h1>
+      <div class="card login-card">
+        <div id="loading-datasets" class="small" style="padding:8px 0">Cargando datos…</div>
 
-  // 1) Intentar guardar en la nube (Neon) vía Function
-  let okCloud = false, saleId = null;
-  try{
-    const r = await fetch(`${API}/sale`, {
-      method:'POST',
-      headers:{'content-type':'application/json'},
-      body: JSON.stringify(payload)
-    }).then(x=>x.json());
-    okCloud = !!(r && r.ok);
-    saleId = r?.saleId || null;
-  }catch(e){ okCloud = false; }
+        <label for="login-region">Región</label>
+        <select id="login-region" disabled><option value="">Selecciona…</option></select>
 
-  // 2) Mantener histórico local (respaldo offline)
-  const histKey = "reviderm_history_"+(STATE.user.dni||STATE.user.advisorId)+"_"+monthKey();
-  STATE.history.push({
-    id: saleId || crypto.randomUUID(),
-    date: payload.date,
-    items: STATE.cart.map(x => ({...x})),
-    totalUnits: STATE.cart.reduce((a,l)=>a+l.qty,0),
-    totalAmount: STATE.cart.reduce((a,l)=>a+l.qty*(l.price||0),0)
-  });
-  localStorage.setItem(histKey, JSON.stringify(STATE.history));
-  STATE.cart = [];
-  renderAll();
+        <label for="login-local">Local</label>
+        <select id="login-local" disabled><option value="">Selecciona…</option></select>
 
-  alert(okCloud ? "Venta registrada (nube + local)" : "Venta registrada localmente (sin conexión). Se intentará sincronizar luego.");
-}
+        <label for="login-advisor">Asesora</label>
+        <select id="login-advisor" disabled><option value="">Selecciona…</option></select>
 
-function renderCart(){
-  S("#cart-count").textContent = STATE.cart.length + " ítems";
-  const list = S("#cart-list");
-  if(STATE.cart.length===0){ list.innerHTML = '<div class="small">Añade productos para registrar la venta de hoy.</div>'; S("#cart-total").textContent = fmt(0); return; }
-  list.innerHTML = STATE.cart.map((l,i)=>{
-    const p = PRODUCTS.find(x=>x.id===l.productId);
-    return `
-      <div class="row card" style="padding:8px;align-items:center;justify-content:space-between">
+        <label for="login-dni">DNI</label>
+        <input id="login-dni" type="tel" inputmode="numeric" pattern="[0-9]*" placeholder="Solo dígitos" disabled>
+
+        <div class="space"></div>
+        <button id="btn-login" class="btn full" disabled>Entrar</button>
+        <div class="small" style="margin-top:8px">* Si el teclado tapa algo, esta pantalla permite desplazarse.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- APP -->
+  <section id="screen-app" class="hidden">
+    <div class="container">
+      <div class="grid">
+        <!-- IZQUIERDA: CATEGORÍAS + PRODUCTOS -->
         <div>
-          <div style="font-weight:600)">${p?p.name:"?"}</div>
-          <div class="small">SKU ${p?p.sku:""} · ${l.qty} <b>und.</b> · ${l.price?fmt(l.price):"S/ —"}</div>
-        </div>
-        <button class="btn small remove" onclick="removeLine(${i})">Quitar</button>
-      </div>`;
-  }).join("");
-  const total = STATE.cart.reduce((a,l)=>a+l.qty*(l.price||0),0);
-  S("#cart-total").textContent = fmt(total);
-}
-
-function renderHistory(){
-  const cont = S("#history");
-  if(STATE.history.length===0){ cont.innerHTML = ""; return; }
-  cont.innerHTML = '<div class="title" style="font-size:16px">Historial reciente</div>' +
-    STATE.history.slice().reverse().slice(0,5).map(h=>{
-      return `
-        <div class="row card" style="padding:8px;align-items:center;justify-content:space-between">
-          <div>
-            <div style="font-weight:600)">${h.date}</div>
-            <div class="small">${h.items.length} líneas · ${h.totalUnits} <b>und.</b> · ${fmt(h.totalAmount)}</div>
+          <!-- Buscador -->
+          <div class="card" style="padding:12px">
+            <div class="search-row">
+              <input id="search" placeholder="Buscar por nombre o SKU…">
+              <button class="btn small outline" id="btn-clear">Limpiar</button>
+            </div>
           </div>
-          <div class="pill" style="background:#ecfdf5;border-color:#bbf7d0;color:#065f46">✓ registrado</div>
-        </div>`;
-    }).join("");
-}
+          <div class="space"></div>
 
-// ------------------ PROGRESO (ahora desde el SERVIDOR) ------------------
-async function renderProgress(){
-  const goalLbl = S("#goal-label");
-  const bar = S("#progress-bar");
-  const ptxt = S("#progress-text");
-  const rewardsList = S("#rewards-list");
-  const nextLbl = S("#rewards-next");
+          <div class="card" style="padding:12px">
+            <div class="title">Categorías</div>
+            <div class="space"></div>
+            <div id="cat-buttons"></div>
+            <div class="space"></div>
+            <div id="subcat-buttons"></div>
+          </div>
+          <div class="space"></div>
 
-  const month = monthKey();
-  let units = 0, goal = 0, rewards = [];
+          <div class="card" style="padding:12px">
+            <div class="title">Productos</div>
+            <div class="space"></div>
+            <div id="product-buttons"></div>
+          </div>
+        </div>
 
-  if(STATE.user?.advisorId){
-    try{
-      const q = new URLSearchParams({ advisorId: STATE.user.advisorId, month }).toString();
-      const r = await fetch(`${API}/progress?${q}`).then(x=>x.json());
-      if(r && r.ok){
-        units = Number(r.unitsWeighted||0);
-        goal  = Number(r.goal||0);
-        rewards = r.rewards || [];
+        <!-- DERECHA: PENDIENTE + PROGRESO -->
+        <div>
+          <!-- Pendiente de enviar -->
+          <div class="card" id="cart">
+            <div class="row" style="justify-content:space-between">
+              <div class="title">Pendiente de enviar</div>
+              <div id="cart-count" class="small">0 ítems</div>
+            </div>
+            <div class="space"></div>
+            <div id="cart-list"></div>
+            <div class="space"></div>
+            <div class="row" style="justify-content:space-between;align-items:center">
+              <div class="title">Total</div>
+              <div id="cart-total" style="font-size:18px">S/ 0.00</div>
+            </div>
+            <div class="space"></div>
+            <button id="btn-submit" class="btn full">Enviar venta</button>
+          </div>
+
+          <div class="space"></div>
+
+          <!-- Objetivo + Premios -->
+          <div class="card">
+            <div class="progress-wrap">
+              <div class="title">Objetivo mes</div>
+              <div class="small" id="goal-label">Objetivo mes: 0 unidades ponderadas</div>
+              <div class="space"></div>
+              <div class="bar-outer"><div id="progress-bar" class="bar-inner"></div></div>
+              <div class="space"></div>
+              <div id="progress-text" class="small">Llevas 0 unidades ponderadas (0%).</div>
+            </div>
+            <hr style="border:none;border-top:1px solid var(--border)">
+            <div id="rewards">
+              <div class="title">Premios del mes (S/)</div>
+              <div class="space"></div>
+              <div id="rewards-list" class="rewards-wrap"></div>
+              <div class="space"></div>
+              <div id="rewards-next" class="big"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="space"></div>
+      <div class="small">* Essential e Indication suman 1 <b>und.</b> por frasco; Intelligence suma 2 <b>und.</b> por frasco.</div>
+    </div>
+  </section>
+
+  <script>
+    /* ====== Carga dinámica de datos desde Neon (via Netlify Function) ====== */
+    const API = '/.netlify/functions';
+    let REGIONS = [];        // Región → Local → Asesora (desde tabla advisors)
+    let PRODUCTS = [];       // Productos con price/category/subcategory
+    let CATEGORY_TREE = {};  // Mapa category → subcategory → [productId]
+
+    const S = sel => document.querySelector(sel);
+    const fmt = n => new Intl.NumberFormat("es-PE",{style:"currency",currency:"PEN"}).format(n||0);
+    const monthKey = () => new Date().toISOString().slice(0,7);
+    const onlyDigits = s => (s||"").replace(/\D+/g,"");
+    const esc = s => (s||"").replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+    let STATE = { user:null, cart:[], history:[] };
+
+    async function loadDatasets(){
+      const loading = S("#loading-datasets");
+      try{
+        const r = await fetch(`${API}/lookup`, { cache:"no-store" });
+        const data = await r.json();
+        if(!data.ok) throw new Error("lookup not ok");
+        REGIONS = data.regions || [];
+        PRODUCTS = data.products || [];
+        CATEGORY_TREE = data.categoryTree || buildTreeFromProducts(PRODUCTS);
+
+        if(!REGIONS.length){
+          loading.textContent = "No hay Regiones/Locales/Asesoras cargadas. Sube el CSV en /admin → Asesoras.";
+          return;
+        }
+        loading.classList.add("hidden");
+        enableLoginControls();
+        initLogin();
+      }catch(e){
+        loading.textContent = "Error cargando datos. Verifica la función 'lookup' y que /admin tenga datos.";
       }
-    }catch(e){ /* fallback abajo */ }
-  }
+    }
 
-  // Fallback simple si no hay server: usa historial local
-  if(!goal && !rewards.length){
-    // Mantén meta por defecto si no tienes objetivos en servidor
-    goal = 100;
-  }
+    function buildTreeFromProducts(list){
+      const tree = {};
+      for(const p of list){
+        const cat = (p.category||"Otros").trim();
+        const sub = (p.subcategory||"General").trim();
+        if(!tree[cat]) tree[cat] = {};
+        if(!tree[cat][sub]) tree[cat][sub] = [];
+        tree[cat][sub].push(p.id);
+      }
+      return tree;
+    }
 
-  const pct = goal ? Math.max(0, Math.min(100, Math.round((units/goal)*100))) : 0;
-  goalLbl.textContent = `Objetivo mes: ${goal||0} unidades ponderadas`;
-  bar.style.width = pct + "%";
-  ptxt.textContent = `Llevas ${units} unidades ponderadas (${pct}%).`;
+    function enableLoginControls(){
+      ["login-region","login-local","login-advisor","login-dni","btn-login"].forEach(id=>{
+        const el = S("#"+id);
+        if(el) el.disabled = false;
+      });
+    }
 
-  // Pintar premios (usa estado que viene del servidor: past/current/future)
-  rewardsList.innerHTML = (rewards.length? rewards : []).map(r=>{
-    const money = r.value_pen!=null ? ' · '+new Intl.NumberFormat("es-PE",{style:"currency",currency:"PEN"}).format(r.value_pen) : '';
-    const state = r.state || (units >= r.threshold ? 'past' : 'future');
-    const cls = state==='current' ? 'reward current' : (state==='past' ? 'reward past' : 'reward future');
-    return `<div class="${cls}"><div>${esc(r.label)}${money}</div><div class="small">${r.threshold} <b>und.</b></div></div>`;
-  }).join("");
+    // ====== Login ======
+    function initLogin(){
+      const selRegion = S("#login-region"), selLocal = S("#login-local"), selAdv = S("#login-advisor");
+      // Poblar regiones
+      selRegion.innerHTML = '<option value="">Selecciona…</option>' + REGIONS.map(r=>`<option value="${r.id}">${r.name}</option>`).join("");
+      selLocal.disabled = true; selAdv.disabled = true;
 
-  // Mensaje "Te faltan…"
-  let next = null;
-  for(const r of (rewards || [])){ if(units < r.threshold){ next = r; break; } }
-  if(next){
-    nextLbl.innerHTML = `Te faltan ${(next.threshold-units)} <b>und.</b> para ${esc(next.label)}.`;
-  }else{
-    nextLbl.textContent = rewards.length ? "¡Alcanzaste el máximo nivel este mes!" : "";
-  }
-}
+      selRegion.onchange = ()=>{
+        const r = REGIONS.find(x=>x.id===selRegion.value);
+        if(!r){ selLocal.disabled=true; selAdv.disabled=true; return; }
+        selLocal.disabled=false;
+        selLocal.innerHTML = '<option value="">Selecciona…</option>' + r.locales.map(l=>`<option value="${l.id}">${l.name}</option>`).join("");
+        selAdv.disabled=true; selAdv.innerHTML = '<option value="">Selecciona…</option>';
+      };
+      selLocal.onchange = ()=>{
+        const r = REGIONS.find(x=>x.id===selRegion.value);
+        const l = r ? r.locales.find(x=>x.id===selLocal.value) : null;
+        if(!l){ selAdv.disabled=true; return; }
+        selAdv.disabled=false;
+        selAdv.innerHTML = '<option value="">Selecciona…</option>' + l.advisors.map(a=>`<option value="${a.id}">${a.name}</option>`).join("");
+      };
 
-// ------------------ RENDER GENERAL ------------------
-function renderAll(){ renderCategories(); renderProductButtons(); renderCart(); renderHistory(); renderProgress(); }
+      S("#btn-login").onclick = async ()=>{
+        const rId = selRegion.value, lId = selLocal.value, aId = selAdv.value;
+        const dni = onlyDigits(S("#login-dni").value);
+        if(!rId || !lId || !aId){ alert("Selecciona región, local y asesora"); return; }
+        if(!dni){ alert("Ingresa tu DNI (solo dígitos)"); return; }
+        const r = REGIONS.find(x=>x.id===rId);
+        const l = r.locales.find(x=>x.id===lId);
+        const a = l.advisors.find(x=>x.id===aId);
 
-// ------------------ ARRANQUE ------------------
-window.addEventListener("load", ()=>{
-  if("serviceWorker" in navigator){ navigator.serviceWorker.register("./sw.js"); }
-  initLogin();
-  S("#btn-logout").onclick = logout;
-  S("#btn-submit").onclick = submitSale;
+        // Login en backend (valida contra Neon)
+        let resp;
+        try{
+          resp = await fetch(`${API}/login`, {
+            method:'POST', headers:{'content-type':'application/json'},
+            body: JSON.stringify({ region:r.name, local:l.name, advisor:a.name, dni })
+          }).then(x=>x.json());
+        }catch(e){ alert("No se pudo conectar con el servidor"); return; }
+        if(!resp || !resp.ok){ alert("DNI o datos incorrectos"); return; }
 
-  // Si quedó sesión guardada, volver a entrar
-  try{
-    const u = JSON.parse(localStorage.getItem("reviderm_user")||"null");
-    if(u && u.advisorId){ STATE.user = u; enterApp(); }
-  }catch{}
-});
-</script>
+        STATE.user = {
+          regionId:r.id, regionName:r.name,
+          localId:l.id,  localName:l.name,
+          advisorId:resp.advisorId, advisorName:a.name, dni
+        };
+        localStorage.setItem("reviderm_user", JSON.stringify(STATE.user));
+        enterApp();
+      };
+    }
+
+    function enterApp(){
+      S("#screen-login").classList.add("hidden");
+      S("#screen-app").classList.remove("hidden");
+      S("#app-header").classList.remove("hidden");
+      S("#store-badge").textContent = `${STATE.user.regionName} · ${STATE.user.localName} · ${STATE.user.advisorName}`;
+      // Cargar historial local del mes (respaldo offline)
+      const histKey = "reviderm_history_"+(STATE.user.dni||STATE.user.advisorId)+"_"+monthKey();
+      try{ STATE.history = JSON.parse(localStorage.getItem(histKey)) || []; }catch{ STATE.history=[]; }
+      renderAll();
+    }
+    function logout(){ STATE.user=null; localStorage.removeItem("reviderm_user"); location.reload(); }
+
+    // ====== Categorías / Subcategorías / Productos ======
+    let CURRENT_CAT=null, CURRENT_SUBCAT=null;
+    function renderCategories(){
+      const cats = Object.keys(CATEGORY_TREE).sort();
+      const cont = S("#cat-buttons");
+      cont.innerHTML = cats.map(c=>`<button class="btn small tab ${c===CURRENT_CAT?'active':''}" onclick="selectCat('${c.replace(/'/g,"\\'")}')">${c}</button>`).join("");
+      if(!CURRENT_CAT && cats.length) CURRENT_CAT=cats[0];
+      renderSubcategories();
+    }
+    function selectCat(cat){ CURRENT_CAT=cat; CURRENT_SUBCAT=null; renderCategories(); }
+    function renderSubcategories(){
+      const subs = Object.keys(CATEGORY_TREE[CURRENT_CAT]||{}).sort();
+      const cont = S("#subcat-buttons");
+      cont.innerHTML = subs.map(s=>`<button class="btn small tab ${s===CURRENT_SUBCAT?'active':''}" onclick="selectSubcat('${s.replace(/'/g,"\\'")}')">${s}</button>`).join("");
+      if(!CURRENT_SUBCAT && subs.length) CURRENT_SUBCAT=subs[0];
+      renderProductButtons();
+    }
+    function selectSubcat(sub){ CURRENT_SUBCAT=sub; renderSubcategories(); }
+
+    const qtyBuffer = new Map();
+    function incQty(pid){ qtyBuffer.set(pid,(qtyBuffer.get(pid)||0)+1); S('#qty-'+pid).textContent=qtyBuffer.get(pid); }
+    function decQty(pid){ const v=(qtyBuffer.get(pid)||0)-1; qtyBuffer.set(pid,Math.max(0,v)); S('#qty-'+pid).textContent=qtyBuffer.get(pid); }
+
+    function renderProductButtons(){
+      const q=(S("#search").value||"").toLowerCase().trim();
+      let prods=[];
+      if(q){
+        prods = PRODUCTS.filter(p => (p.name+" "+(p.sku||"")).toLowerCase().includes(q));
+      }else{
+        const ids=(CATEGORY_TREE[CURRENT_CAT]||{})[CURRENT_SUBCAT]||[];
+        prods = PRODUCTS.filter(p=>ids.includes(p.id));
+      }
+      const cont=S("#product-buttons");
+      if(prods.length===0){ cont.innerHTML='<div class="small">Sin resultados.</div>'; return; }
+      cont.innerHTML = prods.map(p=>{
+        const price = (p.price!=null? fmt(p.price) : "S/ —");
+        return `
+        <div class="card" style="padding:10px;min-width:220px">
+          <div style="font-weight:800">${p.name}</div>
+          <div class="small">SKU ${p.sku||"-"}</div>
+          <div class="pill" style="margin-top:6px">${price}</div>
+          <div class="row" style="margin-top:8px;gap:6px;align-items:center">
+            <button class="btn small tab" onclick="decQty('${p.id}')">−</button>
+            <span id="qty-${p.id}" class="pill">0</span>
+            <button class="btn small tab" onclick="incQty('${p.id}')">+</button>
+            <button class="btn small add" style="margin-left:6px" onclick="addQtyToCart('${p.id}')">Añadir</button>
+          </div>
+        </div>`;
+      }).join("");
+    }
+
+    // ====== Carrito / Enviar venta ======
+    function addQtyToCart(pid){
+      const qty=qtyBuffer.get(pid)||0; if(qty<=0) return;
+      const p=PRODUCTS.find(x=>x.id===pid);
+      const idx=STATE.cart.findIndex(l=>l.productId===pid);
+      const price=p && p.price ? p.price : 0;
+      if(idx>=0) STATE.cart[idx].qty += qty;
+      else STATE.cart.push({ productId:pid, qty, price });
+      qtyBuffer.set(pid,0); S('#qty-'+pid).textContent=0;
+      renderCart();
+    }
+    function removeLine(i){ STATE.cart.splice(i,1); renderCart(); }
+
+    async function submitSale(){
+      if(STATE.cart.length===0){ alert("No hay productos en el carrito"); return; }
+      if(!STATE.user?.advisorId){ alert("Vuelve a iniciar sesión"); return; }
+      const payload = {
+        advisorId: STATE.user.advisorId,
+        region: STATE.user.regionName,
+        local:  STATE.user.localName,
+        date:   new Date().toISOString().slice(0,10),
+        items:  STATE.cart.map(l => ({ productId:l.productId, qty:l.qty }))
+      };
+
+      let okCloud=false, saleId=null;
+      try{
+        const r = await fetch(`${API}/sale`,{
+          method:'POST', headers:{'content-type':'application/json'},
+          body: JSON.stringify(payload)
+        }).then(x=>x.json());
+        okCloud = !!(r && r.ok); saleId = r?.saleId || null;
+      }catch(e){ okCloud = false; }
+
+      // respaldo offline
+      const histKey = "reviderm_history_"+(STATE.user.dni||STATE.user.advisorId)+"_"+monthKey();
+      STATE.history.push({
+        id: saleId || (crypto.randomUUID ? crypto.randomUUID() : String(Date.now())),
+        date: payload.date,
+        items: STATE.cart.map(x=>({...x})),
+        totalUnits: STATE.cart.reduce((a,l)=>a+l.qty,0),
+        totalAmount: STATE.cart.reduce((a,l)=>a+l.qty*(l.price||0),0)
+      });
+      localStorage.setItem(histKey, JSON.stringify(STATE.history));
+      STATE.cart=[]; renderAll();
+
+      alert(okCloud ? "Venta registrada (nube + local)" : "Venta registrada localmente (sin conexión). Se sincronizará al reconectar.");
+    }
+
+    function renderCart(){
+      S("#cart-count").textContent = STATE.cart.length+" ítems";
+      const list=S("#cart-list");
+      if(STATE.cart.length===0){ list.innerHTML='<div class="small">Añade productos para registrar la venta.</div>'; S("#cart-total").textContent=fmt(0); return; }
+      list.innerHTML = STATE.cart.map((l,i)=>{
+        const p=PRODUCTS.find(x=>x.id===l.productId);
+        return `
+          <div class="line">
+            <div>
+              <div style="font-weight:700">${p?p.name:"(?)"}</div>
+              <div class="small">SKU ${p?p.sku:""} · ${l.qty} <b>und.</b> · ${p?.price?fmt(p.price):"S/ —"}</div>
+            </div>
+            <button class="btn small remove" onclick="removeLine(${i})">Quitar</button>
+          </div>
+        `;
+      }).join("");
+      const total = STATE.cart.reduce((a,l)=>a+l.qty*(l.price||0),0);
+      S("#cart-total").textContent = fmt(total);
+    }
+
+    function renderHistory(){
+      const cont = S("#history"); if(!cont) return;
+      if(STATE.history.length===0){ cont.innerHTML=""; return; }
+      cont.innerHTML = '<div class="title" style="font-size:16px">Historial reciente</div>' +
+        STATE.history.slice().reverse().slice(0,5).map(h=>`
+          <div class="row card" style="padding:8px;align-items:center;justify-content:space-between">
+            <div>
+              <div style="font-weight:700">${h.date}</div>
+              <div class="small">${h.items.length} líneas · ${h.totalUnits} <b>und.</b> · ${fmt(h.totalAmount)}</div>
+            </div>
+            <div class="pill" style="background:#ecfdf5;border-color:#bbf7d0;color:#065f46">✓ registrado</div>
+          </div>
+        `).join("");
+    }
+
+    // ====== Progreso / Premios ======
+    async function renderProgress(){
+      const month = monthKey();
+      const goalLbl=S("#goal-label"), bar=S("#progress-bar"), ptxt=S("#progress-text"),
+            rewardsList=S("#rewards-list"), nextLbl=S("#rewards-next");
+      let units=0, goal=0, rewards=[];
+
+      if(STATE.user?.advisorId){
+        try{
+          const q = new URLSearchParams({ advisorId:STATE.user.advisorId, month }).toString();
+          const r = await fetch(`${API}/progress?${q}`).then(x=>x.json());
+          if(r && r.ok){ units=+r.unitsWeighted||0; goal=+r.goal||0; rewards=r.rewards||[]; }
+        }catch(e){}
+      }
+
+      if(!goal && !rewards.length){ goal=100; } // fallback simple
+
+      const pct = goal ? Math.max(0,Math.min(100,Math.round((units/goal)*100))) : 0;
+      goalLbl.textContent = `Objetivo mes: ${goal} unidades ponderadas`;
+      bar.style.width = pct+"%";
+      ptxt.textContent = `Llevas ${units} unidades ponderadas (${pct}%).`;
+
+      rewardsList.innerHTML = (rewards||[]).map(r=>{
+        const money = r.value_pen!=null ? ' · '+new Intl.NumberFormat("es-PE",{style:"currency",currency:"PEN"}).format(r.value_pen) : '';
+        const state = r.state || (units >= r.threshold ? 'past' : 'future');
+        const cls = state==='current' ? 'reward current' : (state==='past' ? 'reward past' : 'reward future');
+        const badge = state==='current' ? '<div class="here">Aquí estás</div>' : '';
+        return `<div class="${cls}">
+          ${badge}
+          <div class="label">${esc(r.label)}${money}</div>
+          <div class="sub">${r.threshold} <b>und.</b></div>
+        </div>`;
+      }).join("");
+
+      // “Te faltan…”
+      let next=null;
+      for(const r of (rewards||[])){ if(units < r.threshold){ next=r; break; } }
+      if(next){
+        nextLbl.innerHTML = `Te faltan ${(next.threshold-units)} <b>und.</b> para ${esc(next.label)}.`;
+      }else{
+        nextLbl.textContent = rewards.length ? "¡Alcanzaste el máximo nivel este mes!" : "";
+      }
+    }
+
+    // ====== Render general ======
+    function renderAll(){
+      renderCategories(); renderProductButtons(); renderCart(); renderHistory(); renderProgress();
+    }
+
+    // ====== Eventos / Inicio ======
+    window.addEventListener("load", ()=>{
+      if("serviceWorker" in navigator){ navigator.serviceWorker.register("./sw.js?v=2025-09-30-03").catch(()=>{}); }
+      loadDatasets();                // << carga REGIONS/PRODUCTS/CATEGORY_TREE desde Neon
+      S("#btn-logout").onclick = logout;
+      S("#btn-submit").onclick = submitSale;
+      S("#btn-clear").onclick = ()=>{ S("#search").value=""; renderProductButtons(); };
+      S("#search").addEventListener("input", renderProductButtons);
+
+      // Restaurar sesión si existe
+      try{
+        const u = JSON.parse(localStorage.getItem("reviderm_user")||"null");
+        if(u && u.advisorId){
+          STATE.user=u;
+          S("#screen-login").classList.add("hidden");
+          S("#screen-app").classList.remove("hidden");
+          S("#app-header").classList.remove("hidden");
+          S("#store-badge").textContent = `${u.regionName} · ${u.localName} · ${u.advisorName}`;
+          renderAll();
+        }
+      }catch{}
+    });
+
+    // Helpers globales para botones inline
+    window.selectCat = selectCat;
+    window.selectSubcat = selectSubcat;
+    window.incQty = incQty;
+    window.decQty = decQty;
+    window.addQtyToCart = addQtyToCart;
+    window.removeLine = removeLine;
+  </script>
+</body>
+</html>
