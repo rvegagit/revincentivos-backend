@@ -65,7 +65,6 @@
     .pbtn{ background:#fff; color:var(--berry); border:1px solid var(--berry); border-radius:999px; padding:8px 12px; font-weight:700; }
     .pbtn.active{ background:var(--berry); color:#fff; }
 
-    /* En pantallas táctiles mostramos el picker también */
     @media (hover:none) and (pointer:coarse){
       #mobile-picker{ display:block; }
     }
@@ -246,6 +245,7 @@
   <script>
     /* ========= Core ========= */
     const API = '/.netlify/functions';
+    const CACHE_KEY = 'reviderm_cache_v1'; // guarda copia local de regiones/productos
     const S = sel => document.querySelector(sel);
     const fmt = n => new Intl.NumberFormat("es-PE",{style:"currency",currency:"PEN"}).format(n||0);
     const monthKey = () => new Date().toISOString().slice(0,7);
@@ -257,35 +257,54 @@
     let CATEGORY_TREE = {};
     let STATE = { user:null, cart:[], history:[] };
 
-    /* ========= Cargar datos (con anti-caché) ========= */
+    /* ========= Cargar datos con fallback ========= */
     async function loadDatasets(){
       const loading = S("#loading-datasets");
       const diag = S("#diag");
+      let ok = false;
+
+      // 1) Intento desde la función (nube)
       try{
-        const url = `${API}/lookup?t=${Date.now()}`; // anti-caché (clave para mobile)
+        const url = `${API}/lookup?t=${Date.now()}`; // anti-caché móvil
         const r = await fetch(url, { cache:"no-store" });
-        if(!r.ok) throw new Error("lookup " + r.status);
         const data = await r.json();
-        if(!data.ok) throw new Error("lookup not ok");
-
-        REGIONS = data.regions || [];
-        PRODUCTS = data.products || [];
-        CATEGORY_TREE = data.categoryTree || buildTreeFromProducts(PRODUCTS);
-
-        diag.textContent = `Datos cargados: ${REGIONS.length} regiones · ${PRODUCTS.length} productos`;
-        if(!REGIONS.length){
-          loading.textContent = "No hay Regiones/Locales/Asesoras en la base. Verifica /admin (Asesoras).";
-          return;
+        if(data && data.ok && Array.isArray(data.regions) && data.regions.length){
+          REGIONS = data.regions; PRODUCTS = data.products||[];
+          CATEGORY_TREE = data.categoryTree || buildTreeFromProducts(PRODUCTS);
+          ok = true;
+          diag.textContent = `Datos (nube): ${REGIONS.length} regiones · ${PRODUCTS.length} productos`;
+          // guarda copia local
+          localStorage.setItem(CACHE_KEY, JSON.stringify({REGIONS,PRODUCTS,CATEGORY_TREE,ts:Date.now()}));
         }
-        loading.classList.add("hidden");
-        enableLoginControls();
-        initLogin();
-        renderMobilePickers(); // picker móvil
-      }catch(e){
-        loading.textContent = "No se pudo cargar datos. Revisa la función 'lookup' o tu conexión.";
-        diag.textContent = "Error: " + String(e);
+      }catch(e){ /* continúa al fallback */ }
+
+      // 2) Si falló o vino vacío, usa la copia local de este dispositivo
+      if(!ok){
+        try{
+          const cache = JSON.parse(localStorage.getItem(CACHE_KEY)||'null');
+          if(cache && Array.isArray(cache.REGIONS) && cache.REGIONS.length){
+            REGIONS = cache.REGIONS; PRODUCTS = cache.PRODUCTS||[];
+            CATEGORY_TREE = cache.CATEGORY_TREE || buildTreeFromProducts(PRODUCTS);
+            ok = true;
+            diag.textContent = `Datos (guardados en este equipo): ${REGIONS.length} regiones · ${PRODUCTS.length} productos`;
+          }
+        }catch(e){}
       }
+
+      // 3) Si aún no hay datos…
+      if(!ok){
+        loading.textContent = "No se pudieron cargar las Regiones/Locales/Asesoras.";
+        diag.innerHTML = `Prueba tu función: <a href="/.netlify/functions/lookup" target="_blank">/.netlify/functions/lookup</a>. 
+                          Si no abre o sale error, revisa que exista <b>netlify/functions/lookup.js</b> y la variable <b>DATABASE_URL</b> en Netlify.`;
+        return;
+      }
+
+      loading.classList.add("hidden");
+      enableLoginControls();
+      initLogin();
+      renderMobilePickers(); // picker móvil
     }
+
     function buildTreeFromProducts(list){
       const tree = {};
       for(const p of list){
@@ -588,7 +607,7 @@
 
     /* ========= Inicio ========= */
     window.addEventListener("load", ()=>{
-      if("serviceWorker" in navigator){ navigator.serviceWorker.register("./sw.js?v=picker3").catch(()=>{}); }
+      if("serviceWorker" in navigator){ navigator.serviceWorker.register("./sw.js?v=fallback1").catch(()=>{}); }
       loadDatasets();
       S("#btn-logout").onclick = logout;
       S("#btn-submit").onclick = submitSale;
